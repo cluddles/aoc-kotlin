@@ -1,4 +1,4 @@
-package aoc.y2024
+package aoc.util
 
 interface Solver<I, O> {
 

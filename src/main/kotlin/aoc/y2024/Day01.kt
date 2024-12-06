@@ -1,6 +1,8 @@
 package aoc.y2024
 
+import aoc.util.Harness
 import aoc.util.Resource
+import aoc.util.Solver
 import kotlin.math.absoluteValue
 
 object Day01: Solver<Day01.Lists, Int> {
