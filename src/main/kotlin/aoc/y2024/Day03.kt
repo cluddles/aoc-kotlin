@@ -1,9 +1,10 @@
 package aoc.y2024
 
-import aoc.util.Harness
-import aoc.util.Resource
-import aoc.util.Solver
+import aoc.core.Harness
+import aoc.core.Resource
+import aoc.core.Solver
 
+/** Mull It Over */
 object Day03: Solver<String, Int> {
 
     // Processing individual lines just causes extra complication here

@@ -1,10 +1,11 @@
 package aoc.y2024
 
-import aoc.util.Harness
-import aoc.util.Resource
-import aoc.util.Solver
+import aoc.core.Harness
+import aoc.core.Resource
+import aoc.core.Solver
 import kotlin.math.absoluteValue
 
+/** Historian Hysteria */
 object Day01: Solver<Day01.Lists, Int> {
 
     data class Lists(val left: List<Int>, val right: List<Int>)

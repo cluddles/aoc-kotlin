@@ -1,11 +1,12 @@
 package aoc.y2024
 
-import aoc.util.Harness
-import aoc.util.Resource
-import aoc.util.Solver
+import aoc.core.Harness
+import aoc.core.Resource
+import aoc.core.Solver
 import kotlin.math.absoluteValue
 import kotlin.math.sign
 
+/** Red-Nosed Reports */
 object Day02: Solver<List<Day02.Report>, Int> {
 
     data class Report(val values: List<Int>)

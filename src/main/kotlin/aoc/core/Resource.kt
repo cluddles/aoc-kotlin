@@ -1,4 +1,4 @@
-package aoc.util
+package aoc.core
 
 import java.io.BufferedReader
 import java.io.File
@@ -23,9 +23,9 @@ object Resource {
     /** Load resource at [path] as one big String */
     fun asText(path: String): String = find(path).readText()
 
-    /** Load resource at [path] as individual lines */
-    fun asLines(path: String): List<String> = asBufferedReader(path).useLines {
-        it.filter { l -> l.isNotBlank() }.toList()
+    /** Load resource at [path] as individual lines. Skips blank lines unless [allowBlankLines] is `true` */
+    fun asLines(path: String, allowBlankLines: Boolean = false): List<String> = asBufferedReader(path).useLines {
+        it.filter { l -> allowBlankLines || l.isNotBlank() }.toList()
     }
 
     /** Open resource at [path] as a BufferedReader */
