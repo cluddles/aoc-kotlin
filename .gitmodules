@@ -1,0 +1,4 @@
+### Private submodule for AOC inputs
+[submodule "aoc-secret"]
+	path = aoc-secret
+	url = git@github.com:cluddles/aoc-secret.git
