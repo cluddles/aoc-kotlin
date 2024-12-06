@@ -16,6 +16,9 @@ jobs:
     steps:
     - name: Checkout Sources
       uses: actions/checkout@v4
+      with:
+        token: ${{ secrets.AOC_SECRET_PAT }}
+        submodules: recursive
     - name: Setup JDK 17
       uses: actions/setup-java@v4
       with:
