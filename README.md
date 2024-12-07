@@ -7,4 +7,19 @@ Very WIP
 
 ### Secrets
 
-Since sharing of inputs (both user-specific and example) is discouraged, these are stored in a separate `aoc-secret` submodule.
+Since sharing of inputs (both user-specific and example/test) is discouraged, these are stored in a separate `aoc-secret` submodule.
+
+Expected directory structure:
+```
+project-root/
+├─ aoc-secret/
+   ├─ 2024/
+      ├─ day01
+      ├─ day02
+      |  ...etc...
+      |
+      ├─ tests/
+         ├─ day01
+         ├─ day02
+            ...etc...
+```
