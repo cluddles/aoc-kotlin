@@ -14,7 +14,7 @@ object Day02: Solver<List<Day02.Report>, Int> {
     override fun prepareInput(path: String): List<Report> {
         Resource.asBufferedReader(path).useLines {
             return it
-                .map { l -> Report(l.split(" ").map { v -> v.toInt() }.toList()) }
+                .map { l -> Report(l.split(" ").map { v -> v.toInt() }) }
                 .toList()
         }
     }
