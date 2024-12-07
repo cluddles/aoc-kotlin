@@ -7,7 +7,7 @@ Very WIP
 
 ### Secrets
 
-Since sharing of inputs (both user-specific and example/test) is discouraged, these are stored in a separate `aoc-secret` submodule.
+Since sharing of puzzle inputs is discouraged, these are stored in a separate `aoc-secret` submodule.
 
 Expected directory structure:
 ```
@@ -17,9 +17,4 @@ project-root/
       ├─ day01
       ├─ day02
       |  ...etc...
-      |
-      ├─ tests/
-         ├─ day01
-         ├─ day02
-            ...etc...
 ```

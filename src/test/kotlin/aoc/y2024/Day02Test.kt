@@ -9,11 +9,11 @@ class Day02Test {
 
     val input = solver.prepareInput("2024/tests/day02")
 
-    @Test fun examplePart1() {
+    @Test fun part1() {
         assertThat(solver.solvePart1(input)).isEqualTo(2)
     }
 
-    @Test fun examplePart2() {
+    @Test fun part2() {
         assertThat(solver.solvePart2(input)).isEqualTo(4)
     }
 

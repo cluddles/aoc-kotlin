@@ -9,11 +9,28 @@ class Day05Test {
 
     val input = solver.prepareInput("2024/tests/day05")
 
-    @Test fun examplePart1() {
+    @Test fun part1() {
         assertThat(solver.solvePart1(input)).isEqualTo(143)
     }
 
-    @Test fun examplePart2() {
+    private fun testFixOrder(from: String, expected: String) {
+        assertThat(solver.fixOrder(input.rules, solver.parseUpdate(from)))
+            .isEqualTo(solver.parseUpdate(expected))
+    }
+
+    @Test fun fixOrder1() {
+        testFixOrder("75,97,47,61,53", "97,75,47,61,53")
+    }
+
+    @Test fun fixOrder2() {
+        testFixOrder("61,13,29", "61,29,13")
+    }
+
+    @Test fun fixOrder3() {
+        testFixOrder("97,13,75,29,47", "97,75,47,29,13")
+    }
+
+    @Test fun part2() {
         assertThat(solver.solvePart2(input)).isEqualTo(123)
     }
 

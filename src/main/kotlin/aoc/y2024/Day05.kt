@@ -23,18 +23,20 @@ object Day05: Solver<Day05.Input, Int> {
                     val relevantRule = orderingRules.computeIfAbsent(rule[0]) { t -> mutableSetOf() }
                     relevantRule += rule[1]
                 } else {
-                    updates += Update(l.split(",").map { it.toInt() })
+                    updates += parseUpdate(l)
                 }
             }
         }
         return Input(orderingRules, updates)
     }
 
-    private fun isCorrectlyOrdered(input: Input, update: Update): Boolean {
+    fun parseUpdate(l: String): Update = Update(l.split(",").map { it.toInt() })
+
+    fun isCorrectlyOrdered(rules: Map<Int, Set<Int>>, update: Update): Boolean {
         // Reject if any page is preceded by one that rules say should come after
         for (i in 1 until update.pages.size) {
             val current = update.pages[i]
-            val rule = input.rules[current]
+            val rule = rules[current]
             if (rule == null) continue
             for (j in 0 until i) {
                 if (rule.contains(update.pages[j])) return false
@@ -43,11 +45,11 @@ object Day05: Solver<Day05.Input, Int> {
         return true
     }
 
-    private fun fixOrder(input: Input, update: Update): Update {
+    fun fixOrder(rules: Map<Int, Set<Int>>, update: Update): Update {
         // For any invalid page combination, swap them around and try again until it works
         val wip = update.pages.toMutableList()
         do {
-            val swapped = fixOrderOnce(input, wip)
+            val swapped = fixOrderOnce(rules, wip)
         } while (swapped)
         return Update(wip)
     }
@@ -56,10 +58,10 @@ object Day05: Solver<Day05.Input, Int> {
      * If any two pages in [wip] are out of order, this will swap them (in-place)
      * @return `true` if a swap occurred.
      */
-    private fun fixOrderOnce(input: Input, wip: MutableList<Int>): Boolean {
+    private fun fixOrderOnce(rules: Map<Int, Set<Int>>, wip: MutableList<Int>): Boolean {
         for (i in 1 until wip.size) {
             val current = wip[i]
-            val rule = input.rules[current]
+            val rule = rules[current]
             if (rule == null) continue
             for (j in 0 until i) {
                 if (rule.contains(wip[j])) {
@@ -77,17 +79,17 @@ object Day05: Solver<Day05.Input, Int> {
 
     override fun solvePart1(input: Input): Int =
         input.updates
-            .filter { isCorrectlyOrdered(input, it) }
+            .filter { isCorrectlyOrdered(input.rules, it) }
             .sumOf { score(it) }
 
     override fun solvePart2(input: Input): Int =
         input.updates
-            .filter { !isCorrectlyOrdered(input, it) }
-            .map { fixOrder(input, it) }
+            .filter { !isCorrectlyOrdered(input.rules, it) }
+            .map { fixOrder(input.rules, it) }
             .sumOf { score(it) }
 
 }
 
 fun main() {
-    Harness.run(Day05, "/2024/day05")
+    Harness.run(Day05, "2024/day05")
 }

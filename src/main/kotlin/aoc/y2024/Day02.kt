@@ -49,5 +49,5 @@ object Day02: Solver<List<Day02.Report>, Int> {
 }
 
 fun main() {
-    Harness.run(Day02, "/2024/day02")
+    Harness.run(Day02, "2024/day02")
 }

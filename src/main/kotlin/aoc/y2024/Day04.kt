@@ -84,5 +84,5 @@ object Day04: Solver<CharGrid, Int> {
 }
 
 fun main() {
-    Harness.run(Day04, "/2024/day04")
+    Harness.run(Day04, "2024/day04")
 }

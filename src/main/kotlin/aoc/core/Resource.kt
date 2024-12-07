@@ -12,12 +12,16 @@ object Resource {
      * Looks in both `src/main/resources` and `aoc-secret` directories
      */
     fun find(path: String): URL {
-        val fromResource = javaClass.getResource("/$path")
-        if (fromResource == null) {
-            val file = File("aoc-secret/$path")
-            if (file.exists()) return file.toURI().toURL()
-        }
-        throw IllegalArgumentException("Resource not found: \"$path\"")
+        return findResource(path) ?: findFile(path) ?: throw IllegalArgumentException("Resource not found: \"$path\"")
+    }
+
+    // Find under src/[main|test]/resources/...
+    private fun findResource(path: String): URL? = javaClass.getResource("/$path")
+
+    // Find under aoc-secret/...
+    private fun findFile(path: String): URL? {
+        val file = File("aoc-secret/$path")
+        return if (file.exists()) file.toURI().toURL() else null
     }
 
     /** Load resource at [path] as one big String */
