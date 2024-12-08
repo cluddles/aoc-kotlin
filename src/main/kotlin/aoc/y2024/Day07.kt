@@ -22,44 +22,38 @@ object Day07: Solver<List<Day07.Equation>, Long> {
         return Resource.asLines(path).map { parseEquation(it) }
     }
 
+    fun concat(first: Long, second: Long): Long = (first.toString() + second.toString()).toLong()
+
     /**
      * Determine whether values in [stack] can evaluate to [target] using `+` or `*` operators
      * (and `||` if [allowConcat] is `true`)
      */
-    fun eval(target: Long, stack: List<Long>, allowConcat: Boolean): Boolean {
-        // If there's only one value, we know the result
-        if (stack.size == 1) return target == stack.last()
-        // Cannot be true if:
-        // * there are no values (how?)
-        // * if target is less than the top of the stack
-        if (stack.isEmpty() || target < stack.last()) return false
+    fun eval(target: Long, stack: List<Long>, allowConcat: Boolean = false): Boolean {
+        return eval(target, 0L, stack, allowConcat)
+    }
 
-        // Create a mutable copy - we'll re-use this for all operations we want to test
+    private fun eval(
+        target: Long,
+        accumulator: Long,
+        stack: List<Long>,
+        allowConcat: Boolean
+    ): Boolean {
+        // If there are no more values, we can determine the result
+        if (stack.isEmpty()) return target == accumulator
+        // Cannot be true if target is less than accumulator
+        if (target < accumulator) return false
+
+        // Pop off next element and eval possible operations
         val mutStack = stack.toMutableList()
-        // Pop off 2 elements
-        val first = mutStack.removeLast()
-        val second = mutStack.removeLast()
-
-        // Test add
-        mutStack += (first + second)
-        if (eval(target, mutStack, allowConcat)) return true
-        // Test multiply
-        mutStack.removeLast()
-        mutStack += (first * second)
-        if (eval(target, mutStack, allowConcat)) return true
-        // Test concat
-        if (allowConcat) {
-            mutStack.removeLast()
-            mutStack += (first.toString() + second.toString()).toLong()
-            if (eval(target, mutStack, allowConcat)) return true
-        }
-
-        return false
+        val next = mutStack.removeLast()
+        return eval(target, accumulator + next, mutStack, allowConcat)
+                || eval(target, accumulator * next, mutStack, allowConcat)
+                || (allowConcat && eval(target, concat(accumulator, next), mutStack, true))
     }
 
     override fun solvePart1(input: List<Equation>): Long {
         return input
-            .filter { eval(it.answer, it.values, allowConcat = false) }
+            .filter { eval(it.answer, it.values) }
             .sumOf { it.answer }
     }
 
