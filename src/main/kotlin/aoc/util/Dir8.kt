@@ -16,7 +16,10 @@ enum class Dir8(val delta: Int2d) {
     NW (Int2d(-1, -1)),
     ;
 
+    val x; get() = delta.x
+    val y; get() = delta.y
+
     /** Rotate by the given number of 45 degree [steps] (positive for clockwise, negative for anti-clockwise) */
-    fun rotate(steps: Int) : Dir8 { return Dir8.entries[Math.floorMod(ordinal + steps, 8)] }
+    fun rotate(steps: Int) : Dir8 { return move(steps) }
 
 }

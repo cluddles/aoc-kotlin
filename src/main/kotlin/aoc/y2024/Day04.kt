@@ -5,11 +5,12 @@ import aoc.core.Resource
 import aoc.core.Solver
 import aoc.util.CharGrid
 import aoc.util.Dir8
+import aoc.util.Grid
 
 /** Ceres Search */
-object Day04: Solver<CharGrid, Int> {
+object Day04: Solver<Grid<Char>, Int> {
 
-    override fun prepareInput(path: String): CharGrid {
+    override fun prepareInput(path: String): Grid<Char> {
         return CharGrid(Resource.asLines(path), ' ')
     }
 
@@ -18,17 +19,17 @@ object Day04: Solver<CharGrid, Int> {
      *
      * @return The number of times the word starts at given position
      */
-    private fun scanForWord(input: CharGrid, x: Int, y: Int, target: String = "XMAS"): Int {
+    private fun scanForWord(input: Grid<Char>, x: Int, y: Int, target: String = "XMAS"): Int {
         // Check for the first letter, abort early
         if (input[x, y] != target[0]) return 0
         val maxOffset = target.length - 1
         var result = 0
         dirs@ for (dir in Dir8.entries) {
             // Don't bother checking this direction if the word can't possibly fit
-            if (!input.isInBounds(x + dir.delta.x * maxOffset, y + dir.delta.y * maxOffset)) continue
+            if (!input.isInBounds(x + dir.x * maxOffset, y + dir.y * maxOffset)) continue
             // Check for each letter
             for (o in 1..maxOffset) {
-                if (input[x + dir.delta.x * o, y + dir.delta.y * o] != target[o]) continue@dirs
+                if (input[x + dir.x * o, y + dir.y * o] != target[o]) continue@dirs
             }
             result++
         }
@@ -41,7 +42,7 @@ object Day04: Solver<CharGrid, Int> {
      *
      * @return If two instances of the word cross over at the given position
      */
-    private fun scanForCross(input: CharGrid, x: Int, y: Int, target: String = "MAS"): Boolean {
+    private fun scanForCross(input: Grid<Char>, x: Int, y: Int, target: String = "MAS"): Boolean {
         // Check for the middle letter, abort early
         if (input[x, y] != target[1]) return false
         // NW has to be either first or last letter
@@ -59,7 +60,7 @@ object Day04: Solver<CharGrid, Int> {
         return (ne == a || sw == a) && se == b && (sw == b || ne == b)
     }
 
-    override fun solvePart1(input: CharGrid): Int {
+    override fun solvePart1(input: Grid<Char>): Int {
         // Look for "X", and then scan surrounding 8 dirs for "MAS"
         var result = 0
         for (i in 0 until input.width) {
@@ -70,7 +71,7 @@ object Day04: Solver<CharGrid, Int> {
         return result
     }
 
-    override fun solvePart2(input: CharGrid): Int {
+    override fun solvePart2(input: Grid<Char>): Int {
         // Look for "A", and then scan adjacent diagonals for valid configuration of "M" and "S"
         var result = 0
         for (i in 1 until input.width-1) {
