@@ -39,11 +39,11 @@ object Day02: Solver<List<Day02.Report>, Int> {
     }
 
     override fun solvePart1(input: List<Report>): Int {
-        return input.filter { l -> isSafe(l) }.count()
+        return input.count { l -> isSafe(l) }
     }
 
     override fun solvePart2(input: List<Report>): Int {
-        return input.filter { l -> isSafeWithinTolerance(l) }.count()
+        return input.count { l -> isSafeWithinTolerance(l) }
     }
 
 }

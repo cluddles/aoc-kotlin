@@ -27,23 +27,27 @@ object Day07: Solver<List<Day07.Equation>, Long> {
      * (and `||` if [allowConcat] is `true`)
      */
     fun eval(target: Long, stack: List<Long>, allowConcat: Boolean): Boolean {
+        // If there's only one value, we know the result
+        if (stack.size == 1) return target == stack.last()
         // Cannot be true if:
         // * there are no values (how?)
         // * if target is less than the top of the stack
-        // * if there's only one value, and it's not equal to the target
-        if (stack.size == 1) return target == stack.last()
         if (stack.isEmpty() || target < stack.last()) return false
 
+        // Create a mutable copy - we'll re-use this for all operations we want to test
         val mutStack = stack.toMutableList()
+        // Pop off 2 elements
         val first = mutStack.removeLast()
         val second = mutStack.removeLast()
+
+        // Test add
         mutStack += (first + second)
         if (eval(target, mutStack, allowConcat)) return true
-
+        // Test multiply
         mutStack.removeLast()
         mutStack += (first * second)
         if (eval(target, mutStack, allowConcat)) return true
-
+        // Test concat
         if (allowConcat) {
             mutStack.removeLast()
             mutStack += (first.toString() + second.toString()).toLong()
