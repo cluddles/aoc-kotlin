@@ -20,6 +20,7 @@ object Day06: Solver<Grid<Char>, Int> {
         return CharGrid(Resource.asLines(path), '.')
     }
 
+    /** Determine [grid] starting position for guard */
     private fun findGuard(grid: Grid<Char>): Guard {
         for (i in 0 until grid.width) {
             for (j in 0 until grid.height) {
@@ -31,10 +32,18 @@ object Day06: Solver<Grid<Char>, Int> {
         throw IllegalArgumentException("No guard found")
     }
 
+    /** Mark [grid] cell as visited by [guard] */
     private fun visit(grid: MutableGrid<Char>, guard: Guard) {
         grid[guard.x, guard.y] = GUARD_DIRS[guard.facing.ordinal]
     }
 
+    /**
+     * Move [guard] once in the [grid]
+     *
+     * If blocked, the guard will rotate once
+     *
+     * Otherwise, they will take a single step forward. The previous position will be marked as visited
+     */
     private fun moveGuardOnce(grid: MutableGrid<Char>, guard: Guard) {
         // Check if we need to turn due to wall
         val targetX = guard.x + guard.facing.x
@@ -50,6 +59,7 @@ object Day06: Solver<Grid<Char>, Int> {
         guard.y = targetY
     }
 
+    /** Generate a copy of [grid] with the guard's movement path marked */
     private fun generateGuardPath(grid: Grid<Char>): Grid<Char> {
         val mutGrid = grid.mutableCopy()
         val guard = findGuard(mutGrid)
@@ -65,6 +75,7 @@ object Day06: Solver<Grid<Char>, Int> {
             .count { GUARD_DIRS.contains(it) }
     }
 
+    /** Blocks off [grid] position [x],[y] with a wall, and determines if this causes the guard to loop */
     private fun causesLoop(grid: Grid<Char>, x: Int, y: Int): Boolean {
         val mutGrid = grid.mutableCopy()
         mutGrid[x, y] = WALL
@@ -84,8 +95,7 @@ object Day06: Solver<Grid<Char>, Int> {
         var looping = 0
         for (i in 0 until grid.width) {
             for (j in 0 until grid.height) {
-                if (i == guardStart.x && j == guardStart.y) continue
-                if (!GUARD_DIRS.contains(grid[i, j])) continue
+                if ((i == guardStart.x && j == guardStart.y) || !GUARD_DIRS.contains(grid[i, j])) continue
                 if (causesLoop(input, i, j)) looping++
             }
         }
