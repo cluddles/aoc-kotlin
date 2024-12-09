@@ -37,9 +37,9 @@ object Day08: Solver<Day08.Input, Int> {
 
     private fun generateAntinodes(input: Input, useLine: Boolean): Grid<Char> {
         return CharGrid(input.width, input.height, BLANK).apply {
-            input.antennae.values.forEach {
+            for (antennae in input.antennae.values) {
                 placeAntinodeList(
-                    it,
+                    antennae,
                     this,
                     if (useLine) Day08::placeAntinodesOnLine else Day08::placeAntinodesFixed
                 )

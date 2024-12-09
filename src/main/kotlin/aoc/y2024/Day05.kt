@@ -15,7 +15,7 @@ object Day05: Solver<Day05.Input, Int> {
         val updates = mutableListOf<Update>()
         Resource.asBufferedReader(path).useLines {
             var readingRules = true
-            it.forEach { l ->
+            for (l in it) {
                 if (l.isBlank()) {
                     readingRules = false
                 } else if (readingRules) {

@@ -15,8 +15,8 @@ object Day01: Solver<Day01.Lists, Int> {
         // Split input to two lists
         val left = mutableListOf<Int>()
         val right = mutableListOf<Int>()
-        lines.forEach {
-            val (l, r) = it.split("   ")
+        for (line in lines) {
+            val (l, r) = line.split("   ")
             left += l.toInt()
             right += r.toInt()
         }
