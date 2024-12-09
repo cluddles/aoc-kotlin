@@ -88,22 +88,36 @@ object Day09: Solver<String, Long> {
         // It would probably be more efficient to have a data structure similar to the input
         // (list of files, where each file consists of id, length)
         val disk = createDiskFromInput(input)
+
+        // Remember where we got to for previous free space scans
+        val prevFree = IntArray(10)
+        // Also remember where we got to when scanning backwards for blocks to move
+        var prevFrom = disk.data.size
+
         ids@ for (fromId in disk.maxId downTo 0) {
             // Find the block to move
-            val fromStart = disk.data.indexOf(fromId)
-            var fromEnd = fromStart + 1
-            while (fromEnd < disk.data.size && disk.data[fromEnd] == fromId) { fromEnd++ }
-            // Find free block big enough
+            var fromEnd = prevFrom
+            while (fromEnd > 0 && disk.data[fromEnd - 1] != fromId) { fromEnd-- }
+            var fromStart = fromEnd - 1
+            while (fromStart > 0 && disk.data[fromStart - 1] == fromId) { fromStart-- }
+            val size = fromEnd - fromStart
+
+            // Find chunk of free space that's big enough
             var freeStart = -1
             var freeEnd = -1
-            for (i in 0 until fromStart) {
+            for (i in prevFree[size] until fromStart) {
                 if (disk.data[i] == BLANK) {
                     if (freeStart == -1) freeStart = i
                     freeEnd = i+1
-                    if (freeEnd - freeStart >= fromEnd - fromStart) {
-                        // Move it and proceed to next id
-                        for (j in fromStart until fromEnd) disk.data[j] = BLANK
-                        for (j in freeStart until freeEnd) disk.data[j] = fromId
+                    if (freeEnd - freeStart >= size) {
+                        // Move the blocks
+                        for (j in 0 until size) {
+                            disk.data[fromStart + j] = BLANK
+                            disk.data[freeStart + j] = fromId
+                        }
+                        // Remember scan positions
+                        prevFree[size] = freeEnd
+                        prevFrom = fromStart
                         continue@ids
                     }
                 } else {
