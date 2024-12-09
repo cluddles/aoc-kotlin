@@ -21,6 +21,11 @@ interface Grid<T> : Iterable<T> {
  */
 interface MutableGrid<T> : Grid<T> {
     operator fun set(x: Int, y: Int, value: T)
+
+    fun setIfInBounds(x: Int, y: Int, value: T) {
+        if (isInBounds(x, y)) this[x, y] = value
+    }
+
 }
 
 /**
