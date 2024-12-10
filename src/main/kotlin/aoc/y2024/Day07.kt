@@ -27,7 +27,7 @@ object Day07: Solver<Sequence<Day07.Equation>, Long> {
             // (pop from end without having to shuffle contents down)
             return Equation(
                 this[0].toLong(),
-                this[1].split(" ").map { it.toLong() }.reversed())
+                this[1].split(" ").map { it.toLong() })
         }
     }
 
@@ -37,17 +37,22 @@ object Day07: Solver<Sequence<Day07.Equation>, Long> {
 
     /**
      * Determine whether values in [stack] can evaluate to [target] using specified [ops]
+     *
+     * @param target Value we want
+     * @param stack Available values to combine
+     * @param pos Current position in stack
+     * @param ops Available operations
+     * @param accumulator Current evaluation total so far
      */
-    fun eval(target: Long, stack: List<Long>, ops: List<Op>, accumulator: Long = 0L): Boolean {
+    fun eval(target: Long, stack: List<Long>, ops: List<Op>, pos: Int = 0, accumulator: Long = 0L): Boolean {
         // If there are no more values, we can determine the result
-        if (stack.isEmpty()) return target == accumulator
+        if (pos == stack.size) return target == accumulator
         // Cannot be true if target is less than accumulator
         if (target < accumulator) return false
 
         // Pop off next element and eval possible operations
-        val next = stack.last()
-        val remaining = stack.dropLast(1)
-        return ops.any { eval(target, remaining, ops, it.apply(accumulator, next)) }
+        val next = stack[pos]
+        return ops.any { eval(target, stack, ops, pos + 1, it.apply(accumulator, next)) }
     }
 
     override fun solvePart1(input: Sequence<Equation>): Long {
