@@ -1,8 +1,8 @@
 package aoc.y2024
 
 import aoc.core.Harness
-import aoc.core.Resource
 import aoc.core.Solver
+import aoc.core.SolverInput
 import aoc.util.CharGrid
 import aoc.util.Grid
 import aoc.util.MutableGrid
@@ -16,8 +16,8 @@ object Day08: Solver<Day08.Input, Int> {
     data class Input(val width: Int, val height: Int, val antennae: Map<Char, List<Antenna>>)
     data class Antenna(val symbol: Char, val x: Int, val y: Int)
 
-    override fun prepareInput(path: String): Input {
-        return gridToInput(CharGrid(Resource.asLines(path)))
+    override fun prepareInput(src: SolverInput): Input {
+        return gridToInput(CharGrid(src.lines().toList()))
     }
 
     /** Extract relevant input info from character [grid] */
@@ -99,5 +99,5 @@ object Day08: Solver<Day08.Input, Int> {
 }
 
 fun main() {
-    Harness.run(Day08, "2024/day08")
+    Harness.run(Day08)
 }

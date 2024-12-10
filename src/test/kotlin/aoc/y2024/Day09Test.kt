@@ -1,5 +1,6 @@
 package aoc.y2024
 
+import aoc.core.SolverInput
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 
@@ -7,7 +8,7 @@ class Day09Test {
 
     val solver = Day09
 
-    val input = solver.prepareInput("2024/tests/day09")
+    val input = solver.prepareInput(SolverInput.fromPath(solver.examplePath))
 
     @Test fun createDiskFromInput() {
         assertThat(solver.createDiskFromInput("12345").toString()).isEqualTo("0..111....22222")

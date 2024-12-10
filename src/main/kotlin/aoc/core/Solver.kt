@@ -1,39 +1,34 @@
 package aoc.core
 
-import kotlin.time.measureTime
-import kotlin.time.measureTimedValue
-
+/**
+ * @property I Solution input type
+ * @property O Solution output type
+ */
 interface Solver<I, O> {
 
-    /** Load input from [path] */
-    fun prepareInput(path: String): I
+    /** Convert input from [src] into suitable format for solutions */
+    fun prepareInput(src: SolverInput): I
 
     /** Solve part 1 for given [input] */
     fun solvePart1(input: I): O
     /** Solve part 2 for given [input] */
     fun solvePart2(input: I): O
 
-}
+    fun prepareAndSolvePart1(src: SolverInput): O = solvePart1(prepareInput(src))
+    fun prepareAndSolvePart2(src: SolverInput): O = solvePart2(prepareInput(src))
 
-object Harness {
+    /** Where the solution input is located */
+    val inputPath: String
+        get() {
+            return with(javaClass) {
+                // package name: the 4 digits at the end are the year
+                // class name: the 2 digits at the end are the day
+                "${packageName.takeLast(4)}/day${simpleName.takeLast(2)}"
+            }
+        }
 
-    /** Run [solver] for both parts of a day's puzzle, using input loaded from [path] */
-    fun <I, O> run(solver: Solver<I, O>, path: String) {
-        measureTime {
-            val (input, t) = measureTimedValue { solver.prepareInput(path) }
-            println("Loaded input in $t")
-
-            println("\nPart 1:")
-            measureTime {
-                println(solver.solvePart1(input))
-            }.also { println("Took $it") }
-
-            println("\nPart 2:")
-            measureTime {
-                println(solver.solvePart2(input))
-            }.also { println("Took $it") }
-
-        }.also { println("\nTotal time elapsed: $it") }
-    }
+    /** Where the example input is located (for unit tests) */
+    val examplePath: String
+        get() = "examples/$inputPath"
 
 }

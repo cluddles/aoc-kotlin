@@ -1,8 +1,8 @@
 package aoc.y2024
 
 import aoc.core.Harness
-import aoc.core.Resource
 import aoc.core.Solver
+import aoc.core.SolverInput
 
 /** Disk Fragmenter */
 object Day09: Solver<String, Long> {
@@ -25,7 +25,7 @@ object Day09: Solver<String, Long> {
         }
     }
 
-    override fun prepareInput(path: String): String = Resource.asLines(path).first()
+    override fun prepareInput(src: SolverInput): String = src.lines().first()
 
     /** Convert [text] in input format (alternating file length, free space length) to [Disk] */
     fun createDiskFromInput(text: String): Disk {
@@ -131,5 +131,5 @@ object Day09: Solver<String, Long> {
 }
 
 fun main() {
-    Harness.run(Day09, "2024/day09")
+    Harness.run(Day09)
 }

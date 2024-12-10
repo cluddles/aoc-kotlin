@@ -1,5 +1,6 @@
 package aoc.y2024
 
+import aoc.core.SolverInput
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 
@@ -7,7 +8,7 @@ class Day07Test {
 
     val solver = Day07
 
-    val input = solver.prepareInput("2024/tests/day07")
+    val input = solver.prepareInput(SolverInput.fromPath(solver.examplePath))
 
     private fun testEval(input: String, expected: Boolean, ops: List<Day07.Op>) {
         with (solver.parseEquation(input)) {

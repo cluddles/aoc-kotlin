@@ -1,14 +1,14 @@
 package aoc.y2024
 
 import aoc.core.Harness
-import aoc.core.Resource
 import aoc.core.Solver
+import aoc.core.SolverInput
 
 /** Mull It Over */
 object Day03: Solver<String, Int> {
 
     // Processing individual lines just causes extra complication here
-    override fun prepareInput(path: String): String = Resource.asText(path)
+    override fun prepareInput(src: SolverInput): String = src.text()
 
     /** Sum all `mul(x,y)` operations in [chunk] */
     private fun evalSimple(chunk: String): Int {
@@ -59,5 +59,5 @@ object Day03: Solver<String, Int> {
 }
 
 fun main() {
-    Harness.run(Day03, "2024/day03")
+    Harness.run(Day03)
 }

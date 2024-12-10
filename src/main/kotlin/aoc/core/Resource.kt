@@ -1,6 +1,5 @@
 package aoc.core
 
-import java.io.BufferedReader
 import java.io.File
 import java.net.URL
 
@@ -25,14 +24,11 @@ object Resource {
     }
 
     /** Load resource at [path] as one big String */
-    fun asText(path: String): String = find(path).readText()
+    fun loadText(path: String): String = find(path).readText()
 
-    /** Load resource at [path] as individual lines. Skips blank lines unless [allowBlankLines] is `true` */
-    fun asLines(path: String, allowBlankLines: Boolean = false): List<String> = asBufferedReader(path).useLines {
-        it.filter { l -> allowBlankLines || l.isNotBlank() }.toList()
+    /** Convert text to lines */
+    fun splitIntoLines(text: String, allowBlankLines: Boolean = false): Sequence<String> {
+        return text.lineSequence().filter { allowBlankLines || it.isNotBlank() }
     }
-
-    /** Open resource at [path] as a BufferedReader */
-    fun asBufferedReader(path: String): BufferedReader = find(path).openStream().bufferedReader()
 
 }

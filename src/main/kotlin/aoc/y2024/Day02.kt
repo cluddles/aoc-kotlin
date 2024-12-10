@@ -1,8 +1,8 @@
 package aoc.y2024
 
 import aoc.core.Harness
-import aoc.core.Resource
 import aoc.core.Solver
+import aoc.core.SolverInput
 import kotlin.math.absoluteValue
 import kotlin.math.sign
 
@@ -11,12 +11,10 @@ object Day02: Solver<List<Day02.Report>, Int> {
 
     data class Report(val values: List<Int>)
 
-    override fun prepareInput(path: String): List<Report> {
-        Resource.asBufferedReader(path).useLines {
-            return it
-                .map { l -> Report(l.split(" ").map { v -> v.toInt() }) }
-                .toList()
-        }
+    override fun prepareInput(src: SolverInput): List<Report> {
+        return src.lines()
+            .map { l -> Report(l.split(" ").map { v -> v.toInt() }) }
+            .toList()
     }
 
     private fun isSafe(report: Report): Boolean {
@@ -49,5 +47,5 @@ object Day02: Solver<List<Day02.Report>, Int> {
 }
 
 fun main() {
-    Harness.run(Day02, "2024/day02")
+    Harness.run(Day02)
 }

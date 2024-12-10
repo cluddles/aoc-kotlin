@@ -1,8 +1,8 @@
 package aoc.y2024
 
 import aoc.core.Harness
-import aoc.core.Resource
 import aoc.core.Solver
+import aoc.core.SolverInput
 
 /** Print Queue */
 object Day05: Solver<Day05.Input, Int> {
@@ -10,21 +10,19 @@ object Day05: Solver<Day05.Input, Int> {
     data class Input(val rules: Map<Int, Set<Int>>, val updates: List<Update>)
     data class Update(val pages: List<Int>)
 
-    override fun prepareInput(path: String): Input {
+    override fun prepareInput(src: SolverInput): Input {
         val orderingRules = mutableMapOf<Int, MutableSet<Int>>()
         val updates = mutableListOf<Update>()
-        Resource.asBufferedReader(path).useLines {
-            var readingRules = true
-            for (l in it) {
-                if (l.isBlank()) {
-                    readingRules = false
-                } else if (readingRules) {
-                    val rule = l.split("|").map { it.toInt() }
-                    val relevantRule = orderingRules.computeIfAbsent(rule[0]) { t -> mutableSetOf() }
-                    relevantRule += rule[1]
-                } else {
-                    updates += parseUpdate(l)
-                }
+        var readingRules = true
+        for (l in src.lines(allowBlankLines = true)) {
+            if (l.isBlank()) {
+                readingRules = false
+            } else if (readingRules) {
+                val rule = l.split("|").map { it.toInt() }
+                val relevantRule = orderingRules.computeIfAbsent(rule[0]) { t -> mutableSetOf() }
+                relevantRule += rule[1]
+            } else {
+                updates += parseUpdate(l)
             }
         }
         return Input(orderingRules, updates)
@@ -91,5 +89,5 @@ object Day05: Solver<Day05.Input, Int> {
 }
 
 fun main() {
-    Harness.run(Day05, "2024/day05")
+    Harness.run(Day05)
 }

@@ -1,11 +1,11 @@
 package aoc.y2024
 
 import aoc.core.Harness
-import aoc.core.Resource
 import aoc.core.Solver
+import aoc.core.SolverInput
 
 /** Bridge Repair */
-object Day07: Solver<List<Day07.Equation>, Long> {
+object Day07: Solver<Sequence<Day07.Equation>, Long> {
 
     data class Equation(val answer: Long, val values: List<Long>)
 
@@ -31,8 +31,8 @@ object Day07: Solver<List<Day07.Equation>, Long> {
         }
     }
 
-    override fun prepareInput(path: String): List<Equation> {
-        return Resource.asLines(path).map { parseEquation(it) }
+    override fun prepareInput(src: SolverInput): Sequence<Equation> {
+        return src.lines().map { parseEquation(it) }
     }
 
     /**
@@ -50,13 +50,13 @@ object Day07: Solver<List<Day07.Equation>, Long> {
         return ops.any { eval(target, remaining, ops, it.apply(accumulator, next)) }
     }
 
-    override fun solvePart1(input: List<Equation>): Long {
+    override fun solvePart1(input: Sequence<Equation>): Long {
         return input
             .filter { eval(it.answer, it.values, opsPart1) }
             .sumOf { it.answer }
     }
 
-    override fun solvePart2(input: List<Equation>): Long {
+    override fun solvePart2(input: Sequence<Equation>): Long {
         return input
             .filter { eval(it.answer, it.values, opsPart2) }
             .sumOf { it.answer }
@@ -65,5 +65,5 @@ object Day07: Solver<List<Day07.Equation>, Long> {
 }
 
 fun main() {
-    Harness.run(Day07, "2024/day07")
+    Harness.run(Day07)
 }

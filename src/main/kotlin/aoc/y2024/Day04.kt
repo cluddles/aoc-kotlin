@@ -1,8 +1,8 @@
 package aoc.y2024
 
 import aoc.core.Harness
-import aoc.core.Resource
 import aoc.core.Solver
+import aoc.core.SolverInput
 import aoc.util.CharGrid
 import aoc.util.Dir8
 import aoc.util.Grid
@@ -10,8 +10,8 @@ import aoc.util.Grid
 /** Ceres Search */
 object Day04: Solver<Grid<Char>, Int> {
 
-    override fun prepareInput(path: String): Grid<Char> {
-        return CharGrid(Resource.asLines(path), ' ')
+    override fun prepareInput(src: SolverInput): Grid<Char> {
+        return CharGrid(src.lines().toList(), ' ')
     }
 
     /**
@@ -85,5 +85,5 @@ object Day04: Solver<Grid<Char>, Int> {
 }
 
 fun main() {
-    Harness.run(Day04, "2024/day04")
+    Harness.run(Day04)
 }

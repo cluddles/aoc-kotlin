@@ -1,7 +1,7 @@
 package aoc.y2024
 
 import aoc.core.Harness
-import aoc.core.Resource
+import aoc.core.SolverInput
 import aoc.core.Solver
 import kotlin.math.absoluteValue
 
@@ -26,8 +26,8 @@ object Day01: Solver<Day01.Lists, Int> {
         return Lists(left, right)
     }
 
-    override fun prepareInput(path: String): Lists {
-        Resource.asBufferedReader(path).useLines { return readLists(it) }
+    override fun prepareInput(src: SolverInput): Lists {
+        return readLists(src.lines())
     }
 
     override fun solvePart1(lists: Lists): Int {
@@ -42,5 +42,5 @@ object Day01: Solver<Day01.Lists, Int> {
 }
 
 fun main() {
-    Harness.run(Day01, "2024/day01")
+    Harness.run(Day01)
 }

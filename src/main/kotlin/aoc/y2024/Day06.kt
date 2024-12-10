@@ -1,8 +1,8 @@
 package aoc.y2024
 
 import aoc.core.Harness
-import aoc.core.Resource
 import aoc.core.Solver
+import aoc.core.SolverInput
 import aoc.util.CharGrid
 import aoc.util.Dir4
 import aoc.util.Grid
@@ -16,8 +16,8 @@ object Day06: Solver<Grid<Char>, Int> {
 
     data class Guard(var x: Int, var y: Int, var facing: Dir4 = Dir4.N)
 
-    override fun prepareInput(path: String): Grid<Char> {
-        return CharGrid(Resource.asLines(path), '.')
+    override fun prepareInput(src: SolverInput): Grid<Char> {
+        return CharGrid(src.lines().toList(), '.')
     }
 
     /** Determine [grid] starting position for guard */
@@ -105,5 +105,5 @@ object Day06: Solver<Grid<Char>, Int> {
 }
 
 fun main() {
-    Harness.run(Day06, "2024/day06")
+    Harness.run(Day06)
 }

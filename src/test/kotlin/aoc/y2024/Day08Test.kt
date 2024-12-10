@@ -1,5 +1,6 @@
 package aoc.y2024
 
+import aoc.core.SolverInput
 import aoc.util.CharGrid
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
@@ -8,7 +9,7 @@ class Day08Test {
 
     val solver = Day08
 
-    val input = solver.prepareInput("2024/tests/day08")
+    val input = solver.prepareInput(SolverInput.fromPath(solver.examplePath))
 
     @Test fun part1() {
         assertThat(solver.solvePart1(input)).isEqualTo(14)
