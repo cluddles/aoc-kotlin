@@ -9,22 +9,51 @@ object Day07: Solver<Sequence<Day07.Equation>, Long> {
 
     data class Equation(val answer: Long, val values: List<Long>)
 
-    /** Operation that can be applied to two values */
-    fun interface Op {
-        fun apply(first: Long, second: Long): Long
+     /** Operation that can be applied to two values */
+     interface Op {
+         /** Combine [a] and [b] using this operation */
+        fun combine(a: Long, b: Long): Long
+
+        /**
+         * Apply the inverse of the operation, such that:
+         * ```
+         * combine(a, b) = total
+         * inverse(b, total) = a
+         * ```
+         *
+         * Returns `-1` if the operation is not valid.
+         */
+        fun inverse(b: Long, total: Long): Long
     }
 
-    val opAdd = Op { first, second -> first + second }
-    val opMul = Op { first, second -> first * second }
-    val opConcat = Op { first, second -> "$first$second".toLong() }
+    object OpAdd : Op {
+        override fun combine(a: Long, b: Long) = a + b
+        override fun inverse(b: Long, total: Long) = total - b
+    }
 
-    val opsPart1 = listOf(opAdd, opMul)
-    val opsPart2 = listOf(opAdd, opMul, opConcat)
+    object OpMul : Op {
+        override fun combine(a: Long, b: Long) = a * b
+        override fun inverse(b: Long, total: Long) = if (total % b != 0L) -1 else total / b
+    }
+
+    object OpConcat : Op {
+        override fun combine(a: Long, b: Long) = "$a$b".toLong()
+        override fun inverse(b: Long, total: Long): Long {
+            val firstStr = "$b"
+            val secondStr = "$total"
+            return if (secondStr.endsWith(firstStr)) {
+                secondStr.substring(0, secondStr.length - firstStr.length).toLong()
+            } else {
+                -1L
+            }
+        }
+    }
+
+    val opsPart1 = listOf(OpAdd, OpMul)
+    val opsPart2 = listOf(OpAdd, OpMul, OpConcat)
 
     fun parseEquation(text: String): Equation {
         return with(text.split(": ")) {
-            // Reverse the value list so we can use it as a more efficient stack
-            // (pop from end without having to shuffle contents down)
             return Equation(
                 this[0].toLong(),
                 this[1].split(" ").map { it.toLong() })
@@ -40,8 +69,8 @@ object Day07: Solver<Sequence<Day07.Equation>, Long> {
      *
      * @param target Value we want
      * @param stack Available values to combine
-     * @param pos Current position in stack
      * @param ops Available operations
+     * @param pos Current position in stack
      * @param accumulator Current evaluation total so far
      */
     fun eval(target: Long, stack: List<Long>, ops: List<Op>, pos: Int = 0, accumulator: Long = 0L): Boolean {
@@ -52,18 +81,40 @@ object Day07: Solver<Sequence<Day07.Equation>, Long> {
 
         // Pop off next element and eval possible operations
         val next = stack[pos]
-        return ops.any { eval(target, stack, ops, pos + 1, it.apply(accumulator, next)) }
+        return ops.any { eval(target, stack, ops, pos + 1, it.combine(accumulator, next)) }
+    }
+
+    /**
+     * Flipped version of [eval], where we start with the target value and apply the inverse of each operation, aiming
+     * for a final result of zero.
+     *
+     * This runs ~95% quicker, as you can quickly eliminate invalid solutions (e.g. if `accumulator/next` isn't a whole
+     * number then the multiply operator is not possible)
+     *
+     * @param accumulator Current value
+     * @param stack Available values to combine
+     * @param ops Available operations
+     * @param pos Current position in stack
+     */
+    fun evalInverse(accumulator: Long, stack: List<Long>, ops: List<Op>, pos: Int = stack.size - 1): Boolean {
+        return when {
+            pos < 0 -> accumulator == 0L
+            accumulator < 0L -> false
+            else -> {
+                ops.any { evalInverse(it.inverse(stack[pos], accumulator), stack, ops, pos - 1) }
+            }
+        }
     }
 
     override fun solvePart1(input: Sequence<Equation>): Long {
         return input
-            .filter { eval(it.answer, it.values, opsPart1) }
+            .filter { evalInverse(it.answer, it.values, opsPart1) }
             .sumOf { it.answer }
     }
 
     override fun solvePart2(input: Sequence<Equation>): Long {
         return input
-            .filter { eval(it.answer, it.values, opsPart2) }
+            .filter { evalInverse(it.answer, it.values, opsPart2) }
             .sumOf { it.answer }
     }
 
