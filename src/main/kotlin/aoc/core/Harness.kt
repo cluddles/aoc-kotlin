@@ -12,8 +12,10 @@ object Harness {
         val src = src ?: SolverInput.fromPath(solver.inputPath)
 
         measureTime {
+            println("\n== ${solver.javaClass.simpleName} ==")
+
             val (input, t) = measureTimedValue { solver.prepareInput(src) }
-            println("Loaded input in $t")
+            println("\nLoaded input in $t")
 
             println("\nPart 1:")
             measureTime {

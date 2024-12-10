@@ -14,6 +14,11 @@ interface Grid<T> : Iterable<T> {
     fun isInBounds(x: Int, y: Int): Boolean = (x >= 0 && y >= 0 && x < width && y < height)
 
     fun mutableCopy(): MutableGrid<T>
+
+    fun debug(): String
+
+    // I tried implementing Iterator / Sequence for Int2d positions in the grid
+    // While more convenient, it was quite a bit slower than using i, j for loops? So it went in the bin
 }
 
 /**
@@ -25,7 +30,6 @@ interface MutableGrid<T> : Grid<T> {
     fun setIfInBounds(x: Int, y: Int, value: T) {
         if (isInBounds(x, y)) this[x, y] = value
     }
-
 }
 
 /**
@@ -59,7 +63,7 @@ class CharGrid private constructor(
 
     override fun iterator(): Iterator<Char> = cells.iterator()
 
-    override fun toString(): String {
+    override fun debug(): String {
         val buffer = StringBuffer()
         for (j in 0 until height) {
             buffer.append(cells, index(0, j), width).append('\n')

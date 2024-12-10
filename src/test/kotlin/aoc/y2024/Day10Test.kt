@@ -8,14 +8,14 @@ class Day10Test {
 
     val solver = Day10
 
-    // val input = solver.prepareInput(SolverInput.fromPath(solver.examplePath))
+    val input = solver.prepareInput(SolverInput.fromPath(solver.examplePath))
 
     @Test fun part1() {
-        // assertThat(solver.solvePart1(input)).isEqualTo(36)
+        assertThat(solver.solvePart1(input)).isEqualTo(36)
     }
 
     @Test fun part2() {
-        // assertThat(solver.solvePart2(input)).isEqualTo(2858L)
+        assertThat(solver.solvePart2(input)).isEqualTo(81)
     }
 
 }
