@@ -27,7 +27,7 @@ object Harness {
                 println(solver.solvePart2(input))
             }.also { println("Took $it") }
 
-        }.also { println("\nTotal time elapsed: $it") }
+        }.also { println("\nTotal elapsed time for this solution: $it") }
     }
 
 }
