@@ -11,78 +11,43 @@ object Day11: Solver<List<Long>, Long> {
         return src.lines().first().split(" ").map { it.toLong() }
     }
 
-    fun blink(stones: List<Long>): List<Long> {
-        val result = mutableListOf<Long>()
-        for (stone in stones) {
-            if (stone == 0L) {
-                result.add(1)
+    fun blink(stones: List<Long>): List<Long> = stones.flatMap { blinkStone(it) }
+
+    private fun blinkStone(stone: Long) : List<Long> {
+        return if (stone == 0L) {
+            listOf(1)
+        } else {
+            val stoneStr = "$stone"
+            if (stoneStr.length % 2 == 0) {
+                listOf(
+                    stoneStr.substring(0, stoneStr.length / 2).toLong(),
+                    stoneStr.substring(stoneStr.length / 2).toLong()
+                )
             } else {
-                val stoneStr = "$stone"
-                if (stoneStr.length % 2 == 0) {
-                    result.add(stoneStr.substring(0, stoneStr.length / 2).toLong())
-                    result.add(stoneStr.substring(stoneStr.length/2).toLong())
-                } else {
-                    result.add(stone * 2024)
-                }
+                listOf(stone * 2024)
             }
         }
-        return result
     }
 
-    private fun calculateBlinkSize(known: Known, digit: Long, ticks: Int): Long {
-        val ks = known.sizes[digit to ticks]
-        if (ks != null) return ks
+    // Map of digit, ticks -> size
+    private val cachedBlinkSizes = mutableMapOf<Pair<Long, Int>, Long>()
 
-        val kd = known.mappings[digit]
-        check(kd != null) { "Unrecognised digit: $digit" }
-        val knownTicks = kd.size
-        val result = if (knownTicks > ticks) {
-            kd[ticks].size.toLong()
-        } else {
-            kd.last().sumOf { calculateBlinkSize(known, it, ticks + 1 - knownTicks) }
+    private fun calculateBlinkSize(digit: Long, ticks: Int): Long {
+        if (ticks == 0) return 1
+        val dt = digit to ticks
+        return cachedBlinkSizes[dt]
+            ?: blinkStone(digit)
+                .sumOf { calculateBlinkSize(it, ticks - 1) }
+                .also { cachedBlinkSizes[dt] = it
         }
-        known.sizes[digit to ticks] = result
-        return result
-    }
-
-    class Known {
-        val mappings = mutableMapOf<Long, MutableList<List<Long>>>()
-        val sizes = mutableMapOf<Pair<Long, Int>, Long>()
     }
 
     private fun solve(input: List<Long>, ticks: Int): Long {
-        // Everything at age 0 is itself
-        val known = Known()
-        for (i in input) {
-            known.mappings.computeIfAbsent(i) { mutableListOf(listOf(i)) }
-        }
-
-        // Tick our mappings the required number of times
-        for (t in 0 until ticks) {
-            var digits = mutableSetOf<Long>()
-            for (e in known.mappings.entries) {
-                // Maybe "finished" knowns should live elsewhere?
-                if (e.value.size == 1 || e.value.last().any { !known.mappings.keys.contains(it) }) {
-                    blink(e.value.last()).apply {
-                        e.value.add(this)
-                        digits.addAll(this)
-                    }
-                }
-            }
-
-            for (i in digits) {
-                known.mappings.computeIfAbsent(i) { mutableListOf(listOf(i)) }
-            }
-        }
-
-        return input.sumOf { calculateBlinkSize(known, it, ticks) }
+        return input.sumOf { calculateBlinkSize(it, ticks) }
     }
 
     override fun solvePart1(input: List<Long>): Long {
         return solve(input, 25)
-//        var result: List<Long> = input
-//        repeat(25) { result = blink(result) }
-//        return result.size.toLong()
     }
 
     override fun solvePart2(input: List<Long>): Long {
