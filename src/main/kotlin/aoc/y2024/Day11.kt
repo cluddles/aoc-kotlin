@@ -11,8 +11,6 @@ object Day11: Solver<List<Long>, Long> {
         return src.lines().first().split(" ").map { it.toLong() }
     }
 
-    fun blink(stones: List<Long>): List<Long> = stones.flatMap { blinkStone(it) }
-
     private fun blinkStone(stone: Long) : List<Long> {
         return if (stone == 0L) {
             listOf(1)
@@ -29,29 +27,25 @@ object Day11: Solver<List<Long>, Long> {
         }
     }
 
-    // Map of digit, ticks -> size
-    private val cachedBlinkSizes = mutableMapOf<Pair<Long, Int>, Long>()
+    /** Map of digit, number of blinks -> number of stones */
+    private val numberOfStonesCache = mutableMapOf<Pair<Long, Int>, Long>()
 
-    private fun calculateBlinkSize(digit: Long, ticks: Int): Long {
-        if (ticks == 0) return 1
-        val dt = digit to ticks
-        return cachedBlinkSizes[dt]
+    /** Determine how many stones [digit] would split into after the given number of [blinks] */
+    private fun numberOfStones(digit: Long, blinks: Int): Long {
+        if (blinks == 0) return 1
+        val dt = digit to blinks
+        return numberOfStonesCache[dt]
             ?: blinkStone(digit)
-                .sumOf { calculateBlinkSize(it, ticks - 1) }
-                .also { cachedBlinkSizes[dt] = it
-        }
-    }
-
-    private fun solve(input: List<Long>, ticks: Int): Long {
-        return input.sumOf { calculateBlinkSize(it, ticks) }
+                .sumOf { numberOfStones(it, blinks - 1) }
+                .also { numberOfStonesCache[dt] = it }
     }
 
     override fun solvePart1(input: List<Long>): Long {
-        return solve(input, 25)
+        return input.sumOf { numberOfStones(it, 25) }
     }
 
     override fun solvePart2(input: List<Long>): Long {
-        return solve(input, 75)
+        return input.sumOf { numberOfStones(it, 75) }
     }
 
 }
