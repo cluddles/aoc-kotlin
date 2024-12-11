@@ -2,6 +2,10 @@
 
 Kotlin-based solutions for [Advent of Code 2024](https://adventofcode.com/2024)
 
+(Also includes a full suite of [Advent of Code 2020](https://adventofcode.com/2020) solutions. These are old and
+probably not especially interesting, except to see how much/little progress I've made in 4 years of sporadic Kotlin
+usage)
+
 Very WIP
 
 

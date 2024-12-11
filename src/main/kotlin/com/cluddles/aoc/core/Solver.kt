@@ -14,9 +14,6 @@ interface Solver<I, O> {
     /** Solve part 2 for given [input] */
     fun solvePart2(input: I): O
 
-    fun prepareAndSolvePart1(src: SolverInput): O = solvePart1(prepareInput(src))
-    fun prepareAndSolvePart2(src: SolverInput): O = solvePart2(prepareInput(src))
-
     /** Where the solution input is located */
     val inputPath: String
         get() {
