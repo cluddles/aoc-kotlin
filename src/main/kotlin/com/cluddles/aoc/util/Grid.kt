@@ -8,6 +8,7 @@ interface Grid<T> : Iterable<T>, Debug {
     val height: Int
 
     operator fun get(x: Int, y: Int): T
+    fun getIfInBounds(x: Int, y: Int, orElse: () -> T): T = if (isInBounds(x, y)) this[x, y] else orElse()
 
     /** Assuming elements are stored contiguously, calculate the index of given [x],[y] pos */
     fun index(x: Int, y: Int) = x + y * width
