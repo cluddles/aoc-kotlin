@@ -17,5 +17,6 @@ enum class Dir4(val delta: Int2d) {
 
     /** Rotate by the given number of 90 degree [steps] (positive for clockwise, negative for anti-clockwise) */
     fun rotate(steps: Int) : Dir4 { return move(steps) }
-
+    val opposite: Dir4
+        get() = rotate(entries.size / 2)
 }
