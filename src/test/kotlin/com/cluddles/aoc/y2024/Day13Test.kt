@@ -15,6 +15,12 @@ class Day13Test {
     }
 
     @Test fun part2() {
-        // TODO
+        // Part two only tells us that the 2nd and 4th claw games are winnable
+        val score = { s: Day13.Scenario -> solver.score(s, solver.PART2_OFFSET) }
+        assertThat(score(input[0])).isEqualTo(-1L)
+        assertThat(score(input[1])).isNotEqualTo(-1L)
+        assertThat(score(input[2])).isEqualTo(-1L)
+        assertThat(score(input[3])).isNotEqualTo(-1L)
     }
+
 }
