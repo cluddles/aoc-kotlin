@@ -45,13 +45,7 @@ object Day10: Solver<Grid<Char>, Int> {
     }
 
     fun solve(input: Grid<Char>, uniqueEnds: Boolean): Int {
-        var result = 0
-        for (i in 0 until input.width) {
-            for (j in 0 until input.height) {
-                result += countPaths(input, i, j, uniqueEnds)
-            }
-        }
-        return result
+        return input.iterableWithPos().sumOf { countPaths(input, it.x, it.y, uniqueEnds) }
     }
 
     override fun solvePart1(input: Grid<Char>): Int {

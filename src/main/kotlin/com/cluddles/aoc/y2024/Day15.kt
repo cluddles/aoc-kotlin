@@ -24,8 +24,6 @@ object Day15: Solver<Day15.Input, Int> {
 
     data class Robot(var x: Int, var y: Int)
 
-    data class Box(val x: Int, val y: Int, val ch: Char)
-
     override fun prepareInput(src: SolverInput): Input {
         val gridLines = mutableListOf<String>()
         val it = src.lines(allowBlankLines = true).iterator()
@@ -48,14 +46,8 @@ object Day15: Solver<Day15.Input, Int> {
     }
 
     private fun findRobot(grid: Grid<Char>): Robot {
-        for (i in 0 until grid.width) {
-            for (j in 0 until grid.height) {
-                if (grid[i, j] == ROBOT) {
-                    return Robot(i, j)
-                }
-            }
-        }
-        error("No robot found")
+        return grid.iterableWithPos().firstOrNull { it.data == ROBOT }?.let { Robot(it.x, it.y) }
+            ?: error("No robot found")
     }
 
     private fun applyMove(robot: Robot, move: Char, grid: MutableGrid<Char>) {
@@ -65,11 +57,7 @@ object Day15: Solver<Day15.Input, Int> {
             if (dir.x != 0) {
                 pushX(grid, robot.x + dir.x, robot.y, dir.x)
             } else {
-                val adds = mutableListOf<Box>()
-                pushY(grid, robot.x, robot.y + dir.y, dir.y, adds)
-                for (a in adds) {
-                    grid[a.x, a.y] = a.ch
-                }
+                pushY(grid, robot.x, robot.y + dir.y, dir.y)
             }
             robot.x += dir.x
             robot.y += dir.y
@@ -92,53 +80,39 @@ object Day15: Solver<Day15.Input, Int> {
         val orig = grid[x, y]
         when (orig) {
             WALL -> error("Cannot push")
-            BOX, BOX_L, BOX_R -> pushX(grid, x + dx, y, dx)
-            else -> { return }
+            BOX, BOX_L, BOX_R -> {
+                grid[x, y] = BLANK
+                pushX(grid, x + dx, y, dx)
+                grid[x + dx, y] = orig
+            }
         }
-        grid[x, y] = BLANK
-        grid[x + dx, y] = orig
     }
 
-    // Y move is less trivial; a single box could be shoved multiple times (either by a perfectly aligned pushing box,
-    // or two half-aligned boxes)
-    private fun pushY(grid: MutableGrid<Char>, x: Int, y: Int, dy: Int, adds: MutableList<Box>) {
+    // Y move is less trivial; a single box could be shoved multiple times
+    // (either by a perfectly aligned pushing box, or two half-aligned boxes)
+    private fun pushY(grid: MutableGrid<Char>, x: Int, y: Int, dy: Int) {
         val orig = grid[x, y]
         when (orig) {
             WALL -> { error("Cannot push") }
-            BOX, BOX_L, BOX_R -> {}
-            else -> { return }
-        }
-
-        // Clear relevant cells; add boxes back into their new positions later
-        grid[x, y] = BLANK
-        adds.add(Box(x, y + dy, orig))
-        when (orig) {
-            BOX_L -> {
-                grid[x + 1, y] = BLANK
-                adds.add(Box(x + 1, y + dy, BOX_R))
+            BOX, BOX_L, BOX_R -> {
+                grid[x, y] = BLANK
+                pushY(grid, x, y + dy, dy)
+                if (orig == BOX_L) {
+                    grid[x + 1, y] = BLANK
+                    pushY(grid, x + 1, y + dy, dy)
+                    grid[x + 1, y + dy] = BOX_R
+                } else if (orig == BOX_R) {
+                    grid[x - 1, y] = BLANK
+                    pushY(grid, x - 1, y + dy, dy)
+                    grid[x - 1, y + dy] = BOX_L
+                }
+                grid[x, y + dy] = orig
             }
-            BOX_R -> {
-                grid[x - 1, y] = BLANK
-                adds.add(Box(x - 1, y + dy, BOX_L))
-            }
-        }
-
-        // Call through to the next box(es) in line
-        pushY(grid, x, y + dy, dy, adds)
-        when (orig) {
-            BOX_L -> pushY(grid, x + 1, y + dy, dy, adds)
-            BOX_R -> pushY(grid, x - 1, y + dy, dy, adds)
         }
     }
 
     private fun gps(grid: Grid<Char>): Int {
-        var result = 0
-        for (i in 0 until grid.width) {
-            for (j in 0 until grid.height) {
-                if (grid[i, j] == BOX || grid[i, j] == BOX_L) result += j * 100 + i
-            }
-        }
-        return result
+        return grid.iterableWithPos().sumOf { if (it.data == BOX || it.data == BOX_L) it.x + it.y * 100 else 0 }
     }
 
     private fun solve(grid: MutableGrid<Char>, moves: String): Int {
@@ -156,17 +130,15 @@ object Day15: Solver<Day15.Input, Int> {
 
     override fun solvePart2(input: Input): Int {
         val grid = CharGrid(input.grid.width * 2, input.grid.height, BLANK)
-        for (i in 0 until input.grid.width) {
-            for (j in 0 until input.grid.height) {
-                val str = when(input.grid[i, j]) {
-                    WALL -> "$WALL$WALL"
-                    BOX -> "$BOX_L$BOX_R"
-                    ROBOT -> "$ROBOT$BLANK"
-                    else -> "$BLANK$BLANK"
-                }
-                grid[i*2, j] = str[0]
-                grid[i*2 + 1, j] = str[1]
+        for (i in input.grid.iterableWithPos()) {
+            val str = when(i.data) {
+                WALL -> "$WALL$WALL"
+                BOX -> "$BOX_L$BOX_R"
+                ROBOT -> "$ROBOT$BLANK"
+                else -> "$BLANK$BLANK"
             }
+            grid[i.x * 2, i.y] = str[0]
+            grid[i.x * 2 + 1, i.y] = str[1]
         }
         return solve(grid, input.moves)
     }

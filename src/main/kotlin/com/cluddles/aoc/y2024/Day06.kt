@@ -21,14 +21,8 @@ object Day06: Solver<Grid<Char>, Int> {
 
     /** Determine [grid] starting position for guard */
     private fun findGuard(grid: Grid<Char>): Guard {
-        for (i in 0 until grid.width) {
-            for (j in 0 until grid.height) {
-                if (grid[i, j] == Dir4.N.toChar()) {
-                    return Guard(i, j)
-                }
-            }
-        }
-        error("No guard found")
+        return grid.iterableWithPos().firstOrNull { it.data == Dir4.N.toChar() }?.let { Guard(it.x, it.y) }
+            ?: error("No guard found")
     }
 
     /** Mark [grid] cell as visited by [guard] */

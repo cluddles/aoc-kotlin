@@ -36,12 +36,9 @@ object Day12: Solver<List<Day12.Region>, Int> {
     fun generateRegions(input: Grid<Char>): List<Region> {
         val input = ArrayListGrid<Cell>(input.width, input.height) { i, j -> Cell(input[i, j]) }
         var result = mutableListOf<Region>()
-        for (i in 0 until input.width) {
-            for (j in 0 until input.height) {
-                val cell = input[i, j]
-                if (!cell.seen) {
-                    result += buildRegion(input, cell, i, j)
-                }
+        input.forEachWithPos { i, j, cell ->
+            if (!cell.seen) {
+                result += buildRegion(input, cell, i, j)
             }
         }
         return result

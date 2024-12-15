@@ -16,8 +16,46 @@ interface Grid<T> : Iterable<T>, Debug {
 
     fun mutableCopy(): MutableGrid<T>
 
-    // I tried implementing Iterator / Sequence for Int2d positions in the grid
-    // While more convenient, it was quite a bit slower than using i, j for loops? So it went in the bin
+    /**
+     * Return an [Iterable] that yields `x`, `y` and cell `data` for all cells in the grid.
+     *
+     * This is slightly less performant than just doing `for i, for j...`, but sometimes it's nice to write less code.
+     */
+    fun iterableWithPos(): CellWithPosIterable<T> = CellWithPosIterable(this)
+
+    /**
+     * Call [func] for each cell in the grid, passing through `x`, `y` and cell `data`.
+     *
+     * This is slightly less performant than just doing `for i, for j...`, but sometimes it's nice to write less code.
+     */
+    fun forEachWithPos(func: (x: Int, y: Int, data: T) -> Unit) {
+        for (i in 0 until width) {
+            for (j in 0 until height) {
+                func(i, j, this[i, j])
+            }
+        }
+    }
+}
+
+data class CellWithPos<T>(val x: Int, val y: Int, val data: T)
+
+data class CellWithPosIterable<T>(val grid: Grid<T>): Iterable<CellWithPos<T>> {
+    override fun iterator(): Iterator<CellWithPos<T>> = CellWithPosIterator(grid)
+}
+
+class CellWithPosIterator<T>(val grid: Grid<T>) : Iterator<CellWithPos<T>> {
+    private var x = 0
+    private var y = 0
+
+    override fun hasNext(): Boolean = grid.width > x && grid.height > y
+
+    override fun next(): CellWithPos<T> {
+        if (!hasNext()) throw NoSuchElementException("Out of bounds: $x,$y")
+        val result = CellWithPos(x, y, grid[x, y])
+        x++
+        if (x >= grid.width) { y++; x = 0 }
+        return result
+    }
 }
 
 /**

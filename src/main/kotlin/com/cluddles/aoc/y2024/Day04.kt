@@ -62,13 +62,7 @@ object Day04: Solver<Grid<Char>, Int> {
 
     override fun solvePart1(input: Grid<Char>): Int {
         // Look for "X", and then scan surrounding 8 dirs for "MAS"
-        var result = 0
-        for (i in 0 until input.width) {
-            for (j in 0 until input.height) {
-                result += scanForWord(input, i, j)
-            }
-        }
-        return result
+        return input.iterableWithPos().sumOf { scanForWord(input, it.x, it.y) }
     }
 
     override fun solvePart2(input: Grid<Char>): Int {

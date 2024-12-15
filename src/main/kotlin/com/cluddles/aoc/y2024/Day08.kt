@@ -23,13 +23,10 @@ object Day08: Solver<Day08.Input, Int> {
     /** Extract relevant input info from character [grid] */
     fun gridToInput(grid: Grid<Char>): Input {
         val antennae = mutableMapOf<Char, MutableList<Antenna>>()
-        for (i in 0 until grid.width) {
-            for (j in 0 until grid.height) {
-                val symbol = grid[i, j]
-                // Filter out antinode here too, to allow example input containing antinodes
-                if (symbol != BLANK && symbol != ANTINODE) {
-                    antennae.computeIfAbsent(symbol) { t -> mutableListOf() }.add(Antenna(symbol, i, j))
-                }
+        grid.forEachWithPos { i, j, symbol ->
+            // Filter out antinode here too, to allow example input containing antinodes
+            if (symbol != BLANK && symbol != ANTINODE) {
+                antennae.computeIfAbsent(symbol) { t -> mutableListOf() }.add(Antenna(symbol, i, j))
             }
         }
         return Input(grid.width, grid.height, antennae)
