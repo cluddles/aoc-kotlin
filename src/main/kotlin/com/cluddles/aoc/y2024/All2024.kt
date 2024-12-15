@@ -4,6 +4,7 @@ import com.cluddles.aoc.core.Harness
 import kotlin.time.measureTime
 
 fun main() {
+
     val allSolvers2024 = listOf(
         Day01,
         Day02,
@@ -29,4 +30,5 @@ fun main() {
     }.also {
         println("\nTotal elapsed time for all solutions: $it")
     }
+
 }

@@ -7,7 +7,6 @@ import com.cluddles.aoc.util.CharGrid
 import com.cluddles.aoc.util.Dir4
 import com.cluddles.aoc.util.Grid
 import com.cluddles.aoc.util.MutableGrid
-import kotlin.text.iterator
 
 /** Warehouse Woes */
 object Day15: Solver<Day15.Input, Int> {
@@ -20,29 +19,20 @@ object Day15: Solver<Day15.Input, Int> {
     const val BOX_L = '['
     const val BOX_R = ']'
 
-    data class Input(val grid: Grid<Char>, val moves: String)
+    data class Input(val grid: Grid<Char>, val moves: List<Dir4>)
 
     data class Robot(var x: Int, var y: Int)
 
     override fun prepareInput(src: SolverInput): Input {
-        val gridLines = mutableListOf<String>()
-        val it = src.lines(allowBlankLines = true).iterator()
-        while (it.hasNext()) {
-            val l = it.next()
-            if (l.isNotBlank()) {
-                gridLines.add(l)
-            } else {
-                break
-            }
-        }
-
-        val moves = StringBuffer()
-        while (it.hasNext()) {
-            val l = it.next()
-            moves.append(l.trimEnd())
-        }
-
-        return Input(CharGrid(gridLines), moves.toString())
+        val gridLines = src.lines(allowBlankLines = true)
+            .takeWhile { it.isNotBlank() }
+            .toList()
+        val moves = src.lines(allowBlankLines = true)
+            .dropWhile { it.isNotBlank() }
+            .dropWhile { it.isBlank() }
+            .flatMap { it.map { ch -> Dir4.fromChar(ch) } }
+            .toList()
+        return Input(CharGrid(gridLines), moves)
     }
 
     private fun findRobot(grid: Grid<Char>): Robot {
@@ -50,14 +40,12 @@ object Day15: Solver<Day15.Input, Int> {
             ?: error("No robot found")
     }
 
-    private fun applyMove(robot: Robot, move: Char, grid: MutableGrid<Char>) {
-        val dir = Dir4.fromChar(move)
+    private fun applyMove(robot: Robot, dir: Dir4, grid: MutableGrid<Char>) {
         if (canMove(grid, robot.x + dir.x, robot.y + dir.y, dir)) {
             grid[robot.x, robot.y] = BLANK
-            if (dir.x != 0) {
-                pushX(grid, robot.x + dir.x, robot.y, dir.x)
-            } else {
-                pushY(grid, robot.x, robot.y + dir.y, dir.y)
+            when (dir.y) {
+                0 -> pushX(grid, robot.x + dir.x, robot.y, dir.x)
+                else -> pushY(grid, robot.x, robot.y + dir.y, dir.y)
             }
             robot.x += dir.x
             robot.y += dir.y
@@ -111,16 +99,12 @@ object Day15: Solver<Day15.Input, Int> {
         }
     }
 
-    private fun gps(grid: Grid<Char>): Int {
-        return grid.iterableWithPos().sumOf { if (it.data == BOX || it.data == BOX_L) it.x + it.y * 100 else 0 }
-    }
-
-    private fun solve(grid: MutableGrid<Char>, moves: String): Int {
+    private fun solve(grid: MutableGrid<Char>, moves: List<Dir4>): Int {
         val robot = findRobot(grid)
         for (m in moves) {
             applyMove(robot, m, grid)
         }
-        return gps(grid)
+        return grid.iterableWithPos().sumOf { if (it.data == BOX || it.data == BOX_L) it.x + it.y * 100 else 0 }
     }
 
     override fun solvePart1(input: Input): Int {

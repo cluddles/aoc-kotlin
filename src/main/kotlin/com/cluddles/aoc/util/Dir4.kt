@@ -30,7 +30,9 @@ enum class Dir4(val delta: Int2d) {
         fun isValidChar(ch: Char): Boolean = CHARS.contains(ch)
 
         fun fromChar(ch: Char): Dir4 {
-            return Dir4.entries[CHARS.indexOf(ch)]
+            val index = CHARS.indexOf(ch)
+            require(index != -1) { "Unrecognised char '$ch'" }
+            return Dir4.entries[index]
         }
     }
 
