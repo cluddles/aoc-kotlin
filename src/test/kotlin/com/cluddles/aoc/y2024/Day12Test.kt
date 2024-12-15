@@ -21,7 +21,8 @@ class Day12Test {
             AAABBA
             ABBAAA
             ABBAAA
-            AAAAAA""".trimIndent()
+            AAAAAA
+        """.trimIndent()
         assertThat(solver.solvePart2(solver.prepareInput(SolverInput.fromText(text)))).isEqualTo(368)
     }
 

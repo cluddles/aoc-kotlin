@@ -1,5 +1,7 @@
 package com.cluddles.aoc.util
 
+import java.util.EnumMap
+
 /**
  * Representation of cardinal (N, E, S, W) directions
  *
@@ -19,4 +21,17 @@ enum class Dir4(val delta: Int2d) {
     fun rotate(steps: Int) : Dir4 { return move(steps) }
     val opposite: Dir4
         get() = rotate(entries.size / 2)
+
+    fun toChar() = CHARS[ordinal]
+
+    companion object {
+        private const val CHARS = "^>v<"
+
+        fun isValidChar(ch: Char): Boolean = CHARS.contains(ch)
+
+        fun fromChar(ch: Char): Dir4 {
+            return Dir4.entries[CHARS.indexOf(ch)]
+        }
+    }
+
 }

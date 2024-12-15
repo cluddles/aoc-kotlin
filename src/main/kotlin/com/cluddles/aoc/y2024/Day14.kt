@@ -5,7 +5,6 @@ import com.cluddles.aoc.core.Solver
 import com.cluddles.aoc.core.SolverInput
 import com.cluddles.aoc.util.CharGrid
 import com.cluddles.aoc.util.Int2d
-import java.io.File
 
 /** Restroom Redoubt */
 object Day14: Solver<List<Day14.Robot>, Int> {

@@ -7,15 +7,11 @@ import com.cluddles.aoc.util.CharGrid
 import com.cluddles.aoc.util.Dir4
 import com.cluddles.aoc.util.Grid
 import com.cluddles.aoc.util.MutableGrid
-import java.util.EnumMap
 
 /** Guard Gallivant */
 object Day06: Solver<Grid<Char>, Int> {
 
     const val WALL = '#'
-    val GUARD_DIRS = EnumMap<Dir4, Char>(Dir4::class.java).apply {
-        putAll(listOf(Dir4.N to '^', Dir4.E to '>', Dir4.S to 'v', Dir4.W to '<'))
-    }
 
     data class Guard(var x: Int, var y: Int, var facing: Dir4 = Dir4.N)
 
@@ -27,17 +23,17 @@ object Day06: Solver<Grid<Char>, Int> {
     private fun findGuard(grid: Grid<Char>): Guard {
         for (i in 0 until grid.width) {
             for (j in 0 until grid.height) {
-                if (grid[i, j] == GUARD_DIRS[Dir4.N]) {
+                if (grid[i, j] == Dir4.N.toChar()) {
                     return Guard(i, j)
                 }
             }
         }
-        throw IllegalArgumentException("No guard found")
+        error("No guard found")
     }
 
     /** Mark [grid] cell as visited by [guard] */
     private fun visit(grid: MutableGrid<Char>, guard: Guard) {
-        grid[guard.x, guard.y] = GUARD_DIRS[guard.facing]!!
+        grid[guard.x, guard.y] = guard.facing.toChar()
     }
 
     /**
@@ -75,7 +71,7 @@ object Day06: Solver<Grid<Char>, Int> {
 
     override fun solvePart1(input: Grid<Char>): Int {
         return generateGuardPath(input)
-            .count { GUARD_DIRS.containsValue(it) }
+            .count { Dir4.isValidChar(it) }
     }
 
     /** Blocks off [grid] position [x],[y] with a wall, and determines if this causes the guard to loop */
@@ -86,7 +82,7 @@ object Day06: Solver<Grid<Char>, Int> {
         do {
             moveGuardOnce(mutGrid, guard)
             val inBounds = mutGrid.isInBounds(guard.x, guard.y)
-            if (inBounds && mutGrid[guard.x, guard.y] == GUARD_DIRS[guard.facing]) return true
+            if (inBounds && mutGrid[guard.x, guard.y] == guard.facing.toChar()) return true
         } while (inBounds)
         return false
     }
@@ -98,7 +94,7 @@ object Day06: Solver<Grid<Char>, Int> {
         var looping = 0
         for (i in 0 until grid.width) {
             for (j in 0 until grid.height) {
-                if ((i == guardStart.x && j == guardStart.y) || !GUARD_DIRS.containsValue(grid[i, j])) continue
+                if ((i == guardStart.x && j == guardStart.y) || !Dir4.isValidChar(grid[i, j])) continue
                 if (causesLoop(input, i, j)) looping++
             }
         }
