@@ -27,4 +27,16 @@ class Day16Test {
         assertThat(solver.solvePart2(input2)).isEqualTo(64)
     }
 
+    @Test fun part2_trivialOrIsIt() {
+        val text = """
+            #####
+            #..E#
+            #...#
+            #S..#
+            #####
+        """.trimIndent()
+        val input = solver.prepareInput(SolverInput.fromText(text))
+        assertThat(solver.solvePart2(input)).isEqualTo(9)
+    }
+
 }
