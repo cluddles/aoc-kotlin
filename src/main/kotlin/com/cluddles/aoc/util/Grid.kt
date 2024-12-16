@@ -101,7 +101,7 @@ class CharGrid private constructor(
     override fun iterator(): Iterator<Char> = cells.iterator()
 
     override fun debug(): String {
-        val buffer = StringBuffer()
+        val buffer = StringBuilder()
         for (j in 0 until height) {
             buffer.append(cells, index(0, j), width).append('\n')
         }
@@ -109,7 +109,38 @@ class CharGrid private constructor(
     }
 
     override fun mutableCopy(): CharGrid = CharGrid(width, height, cells.copyOf())
+}
 
+/**
+ * Simple 2d grid of Ints
+ */
+class IntGrid private constructor(
+    override val width: Int,
+    override val height: Int,
+    private val cells: IntArray
+): MutableGrid<Int> {
+
+    constructor(width: Int, height: Int, initialValue: Int = 0):
+            this(width, height, IntArray(width * height) { initialValue })
+
+    override fun set(x: Int, y: Int, value: Int) {
+        cells[index(x, y)] = value
+    }
+
+    override fun get(x: Int, y: Int): Int = cells[index(x, y)]
+
+    override fun iterator(): Iterator<Int> = cells.iterator()
+
+    override fun debug(): String {
+        // TODO max length?
+        val buffer = StringBuilder()
+        for (j in 0 until height) {
+            buffer.append(cells, index(0, j), width).append('\n')
+        }
+        return buffer.toString()
+    }
+
+    override fun mutableCopy(): IntGrid = IntGrid(width, height, cells.copyOf())
 }
 
 /**
@@ -146,7 +177,15 @@ class ArrayListGrid<T> private constructor(
     override fun iterator(): Iterator<T> = cells.iterator()
 
     override fun debug(): String {
-        TODO("Not yet implemented")
+        val result = StringBuilder()
+        for (j in 0 until height) {
+            for (i in 0 until width) {
+                val cell = this[i, j]
+                if (cell is Debug) result.append(cell.debug()) else result.append("?")
+            }
+            result.append('\n')
+        }
+        return result.toString()
     }
 
 }

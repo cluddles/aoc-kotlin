@@ -17,7 +17,7 @@ object Day09: Solver<String, Long> {
     class Disk(val data: IntArray, val maxId: Int) {
         // Note that this is not useful when IDs > 9
         override fun toString(): String {
-            val result = StringBuffer(data.size)
+            val result = StringBuilder(data.size)
             for (id in data) {
                 result.append(if (id == BLANK) '.' else id.toString())
             }

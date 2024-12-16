@@ -20,11 +20,11 @@ class Day16Test {
     }
 
     @Test fun part2_example1() {
-        // assertThat(solver.solvePart2(input1)).isEqualTo(45)
+        assertThat(solver.solvePart2(input1)).isEqualTo(45)
     }
 
     @Test fun part2_example2() {
-        // assertThat(solver.solvePart2(input2)).isEqualTo(64)
+        assertThat(solver.solvePart2(input2)).isEqualTo(64)
     }
 
 }
