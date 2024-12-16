@@ -16,20 +16,20 @@ object Day16: Solver<Grid<Char>, Int> {
     const val WALL = '#'
     const val START = 'S'
     const val END = 'E'
-    const val BEST = 'O'
 
     override fun prepareInput(src: SolverInput): Grid<Char> {
         return CharGrid(src.lines().toList())
     }
 
-    private fun floodFill(grid: MutableGrid<Int>, input: Grid<Char>, x: Int, y: Int, dir: Dir4, cost: Int) {
-        val score = grid[x, y]
-        if (score >= 0 && score < cost) return
+    /** Populate all cell [costs] with a simple flood fill */
+    private fun populateCosts(costs: MutableGrid<Int>, input: Grid<Char>, x: Int, y: Int, dir: Dir4, cost: Int) {
+        val bestCost = costs[x, y]
+        if (bestCost >= 0 && bestCost < cost) return
         if (input[x, y] == WALL) return
-        grid[x, y] = cost
-        floodFill(grid, input, x + dir.x, y + dir.y, dir, cost + 1)
-        with (dir.rotate(1))  { floodFill(grid, input, x + this.x, y + this.y, this, cost + 1001) }
-        with (dir.rotate(-1)) { floodFill(grid, input, x + this.x, y + this.y, this, cost + 1001) }
+        costs[x, y] = cost
+        populateCosts(costs, input, x + dir.x, y + dir.y, dir, cost + 1)
+        with (dir.rotate(1))  { populateCosts(costs, input, x + this.x, y + this.y, this, cost + 1001) }
+        with (dir.rotate(-1)) { populateCosts(costs, input, x + this.x, y + this.y, this, cost + 1001) }
     }
 
     private fun findStartAndEnd(input: Grid<Char>): Pair<Int2d, Int2d> {
@@ -43,62 +43,34 @@ object Day16: Solver<Grid<Char>, Int> {
     override fun solvePart1(input: Grid<Char>): Int {
         val (start, end) = findStartAndEnd(input)
         val grid = IntGrid(input.width, input.height, -1)
-        floodFill(grid, input, start.x, start.y, Dir4.E, 0)
+        populateCosts(grid, input, start.x, start.y, Dir4.E, 0)
         return grid[end.x, end.y]
     }
 
-    data class Explore(val x: Int, val y: Int, val dir: Dir4)
-
-    private fun bfs(input: Grid<Char>, start: Int2d, startDir: Dir4, end: Int2d): Int {
-        val toExplore = mutableMapOf(Explore(start.x, start.y, startDir) to 0)
-        val explored = mutableMapOf<Explore, Int>()
-
-        while (toExplore.isNotEmpty()) {
-            val entry = toExplore.minBy { it.value }
-            val ex = entry.key
-            val cost = entry.value
-            toExplore.remove(ex)
-            if (explored.getOrDefault(ex, Int.MAX_VALUE) < cost) continue
-            explored[ex] = cost
-            // This assumes the goal is only reachable from a single best direction
-            if (ex.x == end.x && ex.y == end.y) {
-                val grid = input.mutableCopy()
-                backtrack(grid, explored, ex)
-                return grid.count { it == BEST }
-            }
-
-            if (input[ex.x + ex.dir.x, ex.y + ex.dir.y] != WALL) {
-                toExplore[Explore(ex.x + ex.dir.x, ex.y + ex.dir.y, ex.dir)] = cost + 1
-            }
-            toExplore[Explore(ex.x, ex.y, ex.dir.rotate(1))] = cost + 1000
-            toExplore[Explore(ex.x, ex.y, ex.dir.rotate(-1))] = cost + 1000
-        }
-        error("No solution")
-    }
-
-    private fun backtrack(grid: MutableGrid<Char>, explored: Map<Explore, Int>, ex: Explore) {
-        grid[ex.x, ex.y] = BEST
-        val cost = explored[ex]!!
-        val cell = grid[ex.x - ex.dir.x, ex.y - ex.dir.y]
-        if (cell != WALL && cell != BEST) {
-            val back = Explore(ex.x - ex.dir.x, ex.y - ex.dir.y, ex.dir)
-            if (explored.getOrDefault(back, Int.MAX_VALUE) == cost - 1) {
-                backtrack(grid, explored, back)
+    /** Given generated [costs], we can determine all [result] nodes that sit on one of the best paths */
+    private fun backtrack(costs: Grid<Int>, x: Int, y: Int, result: MutableSet<Int2d>, lastCost: Int, lastDir: Dir4?) {
+        val here = Int2d(x, y)
+        if (!result.contains(here)) {
+            result += here
+            val cost = costs[x, y]
+            var dirs = if (lastDir == null) Dir4.entries else listOf(lastDir, lastDir.rotate(1), lastDir.rotate(-1))
+            for (d in dirs) {
+                val nextCost = costs[x + d.x, y + d.y]
+                if (nextCost == -1) continue
+                if (cost - nextCost == 1 || cost - nextCost == 1001 || lastCost - nextCost == 2) {
+                    backtrack(costs, x + d.x, y + d.y, result, cost, d)
+                }
             }
         }
-
-        val right = Explore(ex.x, ex.y, ex.dir.rotate(1))
-        val rightCost = explored.getOrDefault(right, Int.MAX_VALUE)
-        if (rightCost == cost - 1000) backtrack(grid, explored, right)
-
-        val left = Explore(ex.x, ex.y, ex.dir.rotate(-1))
-        val leftCost = explored.getOrDefault(left, Int.MAX_VALUE)
-        if (leftCost == cost - 1000) backtrack(grid, explored, left)
     }
 
     override fun solvePart2(input: Grid<Char>): Int {
         val (start, end) = findStartAndEnd(input)
-        return bfs(input, start, Dir4.E, end)
+        val grid = IntGrid(input.width, input.height, -1)
+        populateCosts(grid, input, start.x, start.y, Dir4.E, 0)
+        val result = mutableSetOf<Int2d>()
+        backtrack(grid, end.x, end.y, result, -1, null)
+        return result.size
     }
 
 }
