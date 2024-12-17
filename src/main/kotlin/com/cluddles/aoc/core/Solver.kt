@@ -1,6 +1,8 @@
 package com.cluddles.aoc.core
 
 /**
+ * Implementation for a daily puzzle.
+ *
  * @property I Solution input type
  * @property O Solution output type
  */

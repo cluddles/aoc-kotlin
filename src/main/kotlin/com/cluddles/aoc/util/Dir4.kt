@@ -1,7 +1,5 @@
 package com.cluddles.aoc.util
 
-import java.util.EnumMap
-
 /**
  * Representation of cardinal (N, E, S, W) directions
  *

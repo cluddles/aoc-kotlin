@@ -14,6 +14,7 @@ data class Int2d(val x: Int, val y: Int) {
     operator fun times(o: Int2d) = Int2d(x * o.x, y * o.x)
     operator fun times(o: Int) = Int2d(x * o, y * o)
 
-    fun manhattan(): Int = (x + y).absoluteValue
+    /** Manhattan distance: sum of absolute [x] and [y] */
+    fun manhattan(): Int = x.absoluteValue + y.absoluteValue
 
 }
