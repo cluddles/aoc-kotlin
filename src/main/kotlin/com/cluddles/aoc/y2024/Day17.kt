@@ -27,33 +27,34 @@ object Day17: Solver<Day17.Input, String> {
 
     data class State(var a: Long, var b: Long, var c: Long, var ip: Int, val out: MutableList<Int>)
 
-    enum class Instruction { ADV, BXL, BST, JNZ, BXC, OUT, BDV, CDV }
+    private enum class Instruction { ADV, BXL, BST, JNZ, BXC, OUT, BDV, CDV }
 
-    fun apply(state: State, i: Instruction, operand: Int) {
-        var skipIpUpdate = false
+    private fun apply(state: State, i: Instruction, operand: Int) {
         when (i) {
             Instruction.ADV -> state.a = state.a / (2.0).pow(combo(state, operand).toDouble()).toLong()
             Instruction.BXL -> state.b = state.b xor operand.toLong()
             Instruction.BST -> state.b = combo(state, operand) % 8
-            Instruction.JNZ -> if (state.a != 0L) { state.ip = operand; skipIpUpdate = true }
+            Instruction.JNZ -> if (state.a != 0L) state.ip = operand - 2
             Instruction.BXC -> state.b = state.b xor state.c
             Instruction.OUT -> state.out += (combo(state, operand) % 8).toInt()
             Instruction.BDV -> state.b = state.a / (2.0).pow(combo(state, operand).toDouble()).toLong()
             Instruction.CDV -> state.c = state.a / (2.0).pow(combo(state, operand).toDouble()).toLong()
         }
-        if (!skipIpUpdate) state.ip += 2
+        // Move pointer along two (instruction + operand). Note JNZ is offset by -2 to counter this
+        state.ip += 2
     }
 
-    private fun combo(state: State, v: Int): Long {
-        return when(v) {
-            0, 1, 2, 3 -> v.toLong()
+    private fun combo(state: State, operand: Int): Long {
+        return when(operand) {
+            0, 1, 2, 3 -> operand.toLong()
             4 -> state.a
             5 -> state.b
             6 -> state.c
-            else -> error("Unsupported $v")
+            else -> error("Unsupported: $operand")
         }
     }
 
+    /** Run the given [input] program (with initial register values) and return final [State] */
     fun run(input: Input): State {
         val state = State(input.a, input.b, input.c, 0, mutableListOf())
         while (state.ip < input.program.size) {
@@ -73,7 +74,7 @@ object Day17: Solver<Day17.Input, String> {
         // Doing this with string.endsWith is probably not optimal, but it is concise...
         var a = 0L
         val inputProgStr = input.program.joinToString()
-        while (true) {
+        do {
             val stateOutStr = run(Input(a, input.b, input.c, input.program)).out.joinToString()
             if (stateOutStr == inputProgStr) {
                 return a.toString()
@@ -83,7 +84,8 @@ object Day17: Solver<Day17.Input, String> {
             } else {
                 a++
             }
-        }
+        } while (stateOutStr.length <= inputProgStr.length)
+        error("No solution")
     }
 
 }
