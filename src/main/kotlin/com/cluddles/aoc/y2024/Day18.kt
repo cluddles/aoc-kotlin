@@ -8,7 +8,26 @@ import com.cluddles.aoc.util.Grid
 import com.cluddles.aoc.util.IntGrid
 import com.cluddles.aoc.util.MutableGrid
 
-/** RAM Run */
+/**
+ * RAM Run
+ *
+ * Thought I was smart by noticing that the grid size (from `0,0` to `70,70`) is actually 71x71
+ *
+ * The myriad of mistakes I made after this might suggest otherwise:
+ * * Reading is hard. We don't just want to add all the interruptions to the grid immediately.
+ * * Reading is hard again. For a moment I thought we wanted to have the interruptions appear as we traverse.
+ * * `x = x + d.y` was a painful typo that took me a while to spot
+ *
+ * Initial implementation as quick and easy depth-first search, which is good enough to get the answers.
+ *
+ * Input grid contains the "tick" that each cell becomes obstructed.
+ *
+ * Improvements that could be made:
+ * * Use faster pathfinding algo, e.g. A*
+ * * Don't just brute force the answer for part 2. Ideas include:
+ * 1. check successful paths and recalculate for the lowest tick that an obstruction would appear on it
+ * 2. binary search to divide search space, e.g. tick 100 is good, tick 200 is bad, check 150 and so on
+ */
 object Day18: Solver<Grid<Int>, String> {
 
     override fun prepareInput(src: SolverInput): Grid<Int> {
@@ -25,21 +44,21 @@ object Day18: Solver<Grid<Int>, String> {
     }
 
     // Quick and dirty DFS
-    private fun populateCosts(input: Grid<Int>, costs: MutableGrid<Int>, x: Int, y: Int, cost: Int, bytes: Int) {
+    private fun populateCosts(input: Grid<Int>, costs: MutableGrid<Int>, x: Int, y: Int, cost: Int, tick: Int) {
         costs[x, y] = cost
         val newCost = cost + 1
         for (d in Dir4.entries) {
             val x = x + d.x
             val y = y + d.y
-            if (input.getIfInBounds(x, y) { 0 } >= bytes && newCost < costs[x, y]) {
-                populateCosts(input, costs, x, y, newCost, bytes)
+            if (input.getIfInBounds(x, y) { -1 } >= tick && newCost < costs[x, y]) {
+                populateCosts(input, costs, x, y, newCost, tick)
             }
         }
     }
 
-    fun solvePart1(input: Grid<Int>, bytes: Int): Int {
+    fun solvePart1(input: Grid<Int>, tick: Int): Int {
         val costs = IntGrid(input.width, input.height, Int.MAX_VALUE)
-        populateCosts(input, costs, 0, 0, 0, bytes)
+        populateCosts(input, costs, 0, 0, 0, tick)
         return costs[input.width-1, input.height-1]
     }
 
@@ -51,7 +70,7 @@ object Day18: Solver<Grid<Int>, String> {
         // It should be brute forceable
         // It's slow, but probably less so than me implementing a quicker algo
         // I'll make nice later
-        for (i in 1..input.max()) {
+        for (i in 0..input.max()) {
             val result = solvePart1(input, i)
             if (result == Int.MAX_VALUE) {
                 return with (input.iterableWithPos().first { it.data == i-1 }) { "$x,$y" }
