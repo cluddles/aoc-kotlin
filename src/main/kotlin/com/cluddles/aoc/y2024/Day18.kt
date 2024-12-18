@@ -5,8 +5,9 @@ import com.cluddles.aoc.core.Solver
 import com.cluddles.aoc.core.SolverInput
 import com.cluddles.aoc.util.Dir4
 import com.cluddles.aoc.util.Grid
+import com.cluddles.aoc.util.Int2d
 import com.cluddles.aoc.util.IntGrid
-import com.cluddles.aoc.util.MutableGrid
+import java.util.*
 
 /**
  * RAM Run
@@ -21,10 +22,6 @@ import com.cluddles.aoc.util.MutableGrid
  * Initial implementation as quick and easy depth-first search, which is good enough to get the answers.
  *
  * Input grid contains the "tick" that each cell becomes obstructed.
- *
- * Improvements that could be made:
- * * Use faster pathfinding algo, e.g. A*
- * * Part 2: when there's a successful path, next scan using the lowest tick that an obstruction would block it
  */
 object Day18: Solver<Grid<Int>, String> {
 
@@ -41,23 +38,36 @@ object Day18: Solver<Grid<Int>, String> {
         return result
     }
 
-    // Quick and dirty DFS
-    private fun populateCosts(input: Grid<Int>, costs: MutableGrid<Int>, x: Int, y: Int, cost: Int, tick: Int) {
-        costs[x, y] = cost
-        val newCost = cost + 1
-        for (d in Dir4.entries) {
-            val x = x + d.x
-            val y = y + d.y
-            if (input.getIfInBounds(x, y) { -1 } >= tick && newCost < costs[x, y]) {
-                populateCosts(input, costs, x, y, newCost, tick)
-            }
+    // A* to find lowest cost path from start to end
+    private fun lowestCost(start: Int2d, end: Int2d, grid: Grid<Int>, tick: Int): Int? {
+        val g = mutableMapOf<Int2d, Int>()
+        val f = mutableMapOf<Int2d, Int>()
+        val open = PriorityQueue<Int2d>(Comparator.comparingInt { f[it]!! })
+        g[start] = 0
+        f[start] = (end - start).manhattan()
+        open += start
+        while (open.isNotEmpty()) {
+            val current = open.remove()
+            val gCurrent = g[current]!!
+            if (current == end) return gCurrent
+            val gNext = gCurrent + 1
+            Dir4.entries
+                .map { current + it.delta }
+                .filter {
+                    grid.getIfInBounds(it.x, it.y) { -1 } >= tick
+                    && gNext < g.getOrDefault(it, Int.MAX_VALUE)
+                }
+                .forEach {
+                    g[it] = gNext
+                    f[it] = gNext + (end - it).manhattan()
+                    open += it
+                }
         }
+        return null
     }
 
     fun solvePart1(input: Grid<Int>, tick: Int): Int {
-        val costs = IntGrid(input.width, input.height, Int.MAX_VALUE)
-        populateCosts(input, costs, 0, 0, 0, tick)
-        return costs[input.width-1, input.height-1]
+        return lowestCost(Int2d(0, 0), Int2d(input.width-1, input.height-1), input, tick) ?: Int.MAX_VALUE
     }
 
     override fun solvePart1(input: Grid<Int>): String {
