@@ -24,9 +24,7 @@ import com.cluddles.aoc.util.MutableGrid
  *
  * Improvements that could be made:
  * * Use faster pathfinding algo, e.g. A*
- * * Don't just brute force the answer for part 2. Ideas include:
- * 1. check successful paths and recalculate for the lowest tick that an obstruction would appear on it
- * 2. binary search to divide search space, e.g. tick 100 is good, tick 200 is bad, check 150 and so on
+ * * Part 2: when there's a successful path, next scan using the lowest tick that an obstruction would block it
  */
 object Day18: Solver<Grid<Int>, String> {
 
@@ -67,16 +65,20 @@ object Day18: Solver<Grid<Int>, String> {
     }
 
     override fun solvePart2(input: Grid<Int>): String {
-        // It should be brute forceable
-        // It's slow, but probably less so than me implementing a quicker algo
-        // I'll make nice later
-        for (i in 0..input.max()) {
-            val result = solvePart1(input, i)
-            if (result == Int.MAX_VALUE) {
-                return with (input.iterableWithPos().first { it.data == i-1 }) { "$x,$y" }
+        // Unless inputs are seriously janky, assume tick=0 is always good and tick=max is always bad
+        var min = 0
+        var max = input.filter { it != Int.MAX_VALUE }.max()
+        // Quickest/dirtiest binary search I've ever written
+        while (max - min > 1) {
+            val current = (min + max) / 2
+            val valid = (solvePart1(input, current) != Int.MAX_VALUE)
+            if (valid) {
+                min = maxOf(current, min + 1)
+            } else {
+                max = minOf(current, max - 1)
             }
         }
-        error("No solution")
+        return with (input.iterableWithPos().first { it.data == max-1 }) { "$x,$y" }
     }
 
 }
