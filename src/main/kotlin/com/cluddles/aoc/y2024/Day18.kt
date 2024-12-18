@@ -73,12 +73,12 @@ object Day18: Solver<Grid<Int>, String> {
             val current = (min + max) / 2
             val valid = (solvePart1(input, current) != Int.MAX_VALUE)
             if (valid) {
-                min = maxOf(current, min + 1)
+                min = current
             } else {
-                max = minOf(current, max - 1)
+                max = current
             }
         }
-        return with (input.iterableWithPos().first { it.data == max-1 }) { "$x,$y" }
+        return with (input.iterableWithPos().first { it.data == min }) { "$x,$y" }
     }
 
 }
