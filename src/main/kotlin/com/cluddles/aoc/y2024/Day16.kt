@@ -21,7 +21,7 @@ object Day16: Solver<Grid<Char>, Int> {
         return CharGrid(src.lines().toList())
     }
 
-    /** Populate all cell [costs] with a simple flood fill */
+    /** Populate all cell [costs] with a simple depth first search (flood fill) */
     private fun populateCosts(costs: MutableGrid<Int>, input: Grid<Char>, x: Int, y: Int, dir: Dir4, cost: Int) {
         val bestCost = costs[x, y]
         if (bestCost >= 0 && bestCost < cost) return
