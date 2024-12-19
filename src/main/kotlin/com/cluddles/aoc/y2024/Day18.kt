@@ -9,20 +9,7 @@ import com.cluddles.aoc.util.Int2d
 import com.cluddles.aoc.util.IntGrid
 import java.util.*
 
-/**
- * RAM Run
- *
- * Thought I was smart by noticing that the grid size (from `0,0` to `70,70`) is actually 71x71
- *
- * The myriad of mistakes I made after this might suggest otherwise:
- * * Reading is hard. We don't just want to add all the interruptions to the grid immediately.
- * * Reading is hard again. For a moment I thought we wanted to have the interruptions appear as we traverse.
- * * `x = x + d.y` was a painful typo that took me a while to spot
- *
- * Initial implementation as quick and easy depth-first search, which is good enough to get the answers.
- *
- * Input grid contains the "tick" that each cell becomes obstructed.
- */
+/** RAM Run */
 object Day18: Solver<Grid<Int>, String> {
 
     override fun prepareInput(src: SolverInput): Grid<Int> {
@@ -41,10 +28,8 @@ object Day18: Solver<Grid<Int>, String> {
     // A* to find lowest cost path from start to end
     private fun lowestCost(start: Int2d, end: Int2d, grid: Grid<Int>, tick: Int): Int? {
         val g = mutableMapOf<Int2d, Int>()
-        val f = mutableMapOf<Int2d, Int>()
-        val open = PriorityQueue<Int2d>(Comparator.comparingInt { f[it]!! })
+        val open = PriorityQueue<Int2d>(Comparator.comparingInt { g[it]!! + it.manhattan(end) })
         g[start] = 0
-        f[start] = (end - start).manhattan()
         open += start
         while (open.isNotEmpty()) {
             val current = open.remove()
@@ -59,7 +44,6 @@ object Day18: Solver<Grid<Int>, String> {
                 }
                 .forEach {
                     g[it] = gNext
-                    f[it] = gNext + (end - it).manhattan()
                     open += it
                 }
         }
@@ -82,11 +66,7 @@ object Day18: Solver<Grid<Int>, String> {
         while (max - min > 1) {
             val current = (min + max) / 2
             val valid = (solvePart1(input, current) != Int.MAX_VALUE)
-            if (valid) {
-                min = current
-            } else {
-                max = current
-            }
+            if (valid) min = current else max = current
         }
         return with (input.iterableWithPos().first { it.data == min }) { "$x,$y" }
     }
