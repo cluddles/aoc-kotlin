@@ -12,7 +12,8 @@ class Day20Test {
     val input = solver.prepareInput(SolverInput.fromPath(solver.examplePath))
 
     @Test fun bestPathWithoutCheats() {
-        assertThat(solver.generatePath(input).size).isEqualTo(84)
+        // cost of path = 84; size is 85 nodes since it includes both start and end
+        assertThat(solver.generatePath(input).size).isEqualTo(85)
     }
 
     private fun countCheats(cheats: Map<Cheat, Int>, saving: Int): Int {
