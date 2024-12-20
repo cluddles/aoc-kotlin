@@ -35,6 +35,10 @@ interface Grid<T> : Iterable<T>, Debug {
             }
         }
     }
+
+    fun first(predicate: (x: Int, y: Int, data: T) -> Boolean): Int2d {
+        return iterableWithPos().first { predicate.invoke(it.x, it.y, it.data) }.let { Int2d(it.x, it.y) }
+    }
 }
 
 data class CellWithPos<T>(val x: Int, val y: Int, val data: T)
