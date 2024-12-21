@@ -21,7 +21,7 @@ class Day20Test {
     }
 
     @Test fun part1() {
-        val cheats = solver.uniqueCheats(input, 2, 0)
+        val cheats = solver.findCheats(input, 2, 0)
         assertThat(countCheats(cheats, 2)).isEqualTo(14)
         assertThat(countCheats(cheats, 4)).isEqualTo(14)
         assertThat(countCheats(cheats, 6)).isEqualTo(2)
@@ -37,7 +37,7 @@ class Day20Test {
     }
 
     @Test fun part2() {
-        val cheats = solver.uniqueCheats(input, 20, 50)
+        val cheats = solver.findCheats(input, 20, 50)
         assertThat(countCheats(cheats, 50)).isEqualTo(32)
         assertThat(countCheats(cheats, 52)).isEqualTo(31)
         assertThat(countCheats(cheats, 54)).isEqualTo(29)

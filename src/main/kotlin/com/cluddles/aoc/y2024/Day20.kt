@@ -13,7 +13,6 @@ object Day20: Solver<Grid<Char>, Int> {
 
     const val WALL = '#'
     const val START = 'S'
-    const val END = 'E'
 
     override fun prepareInput(src: SolverInput): Grid<Char> {
         return CharGrid(src.lines().toList())
@@ -42,33 +41,36 @@ object Day20: Solver<Grid<Char>, Int> {
 
     data class Cheat(val start: Int2d, val end: Int2d)
 
-    private fun findUniqueCheats(grid: Grid<Char>, maxCheat: Int, threshold: Int): Map<Cheat, Int> {
+    fun findCheats(grid: Grid<Char>, maxCheat: Int, threshold: Int): Map<Cheat, Int> {
         var cheats = mutableMapOf<Cheat, Int>()
         val path = generatePath(grid)
-        for (i in path.indices) {
-            for (j in i+4 until path.size) {
+        for (i in 0 until path.size - threshold) {
+            var j = i + threshold
+            while (j < path.size) {
                 val dist = path[i].manhattan(path[j])
                 if (dist <= maxCheat) {
                     val saving = j - i - dist
-                    if (saving > 0 && saving >= threshold) {
+                    if (saving >= maxOf(1, threshold)) {
                         cheats[Cheat(path[i], path[j])] = saving
                     }
+                    j++
+                } else {
+                    // If start->end distance is more than max cheat, we know the distance can't fall back within max
+                    // cheat range until a number of steps later
+                    // Note: This also seems to work with just (dist - maxCheat) but that seems wrong?
+                    j += (dist - maxCheat) / 2 + 1
                 }
             }
         }
         return cheats
     }
 
-    fun uniqueCheats(input: Grid<Char>, maxCheat: Int, threshold: Int): Map<Cheat, Int> {
-        return findUniqueCheats(input, maxCheat, threshold)
-    }
-
     override fun solvePart1(input: Grid<Char>): Int {
-        return uniqueCheats(input, 2, 100).size
+        return findCheats(input, 2, 100).size
     }
 
     override fun solvePart2(input: Grid<Char>): Int {
-        return uniqueCheats(input, 20, 100).size
+        return findCheats(input, 20, 100).size
     }
 
 }
