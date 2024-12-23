@@ -7,8 +7,9 @@ import com.cluddles.aoc.core.Solver
 /** Monkey Market */
 object Day22: Solver<List<Long>, Long> {
 
+    // Small optimisation: Note that 16777216 is 2^24 so you can bitwise AND instead of using modulo
     fun Long.mixAndPrune(mixer: (Long) -> Long): Long =
-        (mixer(this) xor this) % 16777216
+        (mixer(this) xor this) and 16777215
 
     // It's slightly faster without using Sequence... but this is prettier, so I've done it this way for once
     private fun secrets(secret: Long): Sequence<Long> =
