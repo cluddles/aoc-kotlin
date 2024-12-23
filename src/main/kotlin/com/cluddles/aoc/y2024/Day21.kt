@@ -3,10 +3,7 @@ package com.cluddles.aoc.y2024
 import com.cluddles.aoc.core.Harness
 import com.cluddles.aoc.core.SolverInput
 import com.cluddles.aoc.core.Solver
-import com.cluddles.aoc.util.Dir4
 import com.cluddles.aoc.util.Int2d
-import com.cluddles.aoc.y2024.Day21.dirPadKeys
-import com.cluddles.aoc.y2024.Day21.numPadKeys
 import kotlin.math.absoluteValue
 import kotlin.text.mapIndexed
 
@@ -55,14 +52,14 @@ object Day21: Solver<List<String>, Long> {
     private fun String.repeatSafe(times: Int) = if (times > 0) repeat(times) else ""
 
     /** For a numeric pad [seq] (e.g. `123A`), this will return one shortest directional pad input for parent robot */
-    private fun convertNumPadLineToDirInput(seq: String, startFrom: Char = 'A'): String {
+    private fun numPadToDirs(seq: String, startFrom: Char = 'A'): String {
         return seq.indices
-            .joinToString("A") { i -> convertNumPadStep(if (i == 0) startFrom else seq[i - 1], seq[i]) } + "A"
+            .joinToString("A") { i -> numPath(if (i == 0) startFrom else seq[i - 1], seq[i]) } + "A"
     }
 
-    private fun convertNumPadStep(prevChar: Char, nextChar: Char): String {
-        val prevPos = numPadKeys[prevChar] ?: error("Bad key: $prevChar")
-        val nextPos = numPadKeys[nextChar] ?: error("Bad key: $nextChar")
+    private fun numPath(from: Char, to: Char): String {
+        val prevPos = numPadKeys[from] ?: error("Bad key: $from")
+        val nextPos = numPadKeys[to] ?: error("Bad key: $to")
         // Exception: if starting from bottom row, you cannot go left over the "gap"
         val delta = nextPos - prevPos
         if (prevPos.y == 3 && nextPos.x == 0) {
@@ -73,15 +70,10 @@ object Day21: Solver<List<String>, Long> {
         return "<".repeatSafe(-delta.x) + "v".repeatSafe(delta.y) + "^".repeatSafe(-delta.y) + ">".repeatSafe(delta.x)
     }
 
-    /** For a directional pad sequence, convert to one shortest directional pad input for parent robot */
-    private fun convertDirPadSequence(seq: String, startFrom: Char = 'A'): String {
-        return seq.indices
-            .joinToString("A") { i -> convertDirPadStep(if (i == 0) startFrom else seq[i - 1], seq[i]) } + "A"
-    }
-
-    private fun convertDirPadStep(prevChar: Char, nextChar: Char): String {
-        val prevPos = dirPadKeys[prevChar] ?: error("Bad key: $prevChar")
-        val nextPos = dirPadKeys[nextChar] ?: error("Bad key: $nextChar")
+    /** For a directional pad transition, returns optimal path to move between keys */
+    private fun dirPath(from: Char, to: Char): String {
+        val prevPos = dirPadKeys[from] ?: error("Bad key: $from")
+        val nextPos = dirPadKeys[to] ?: error("Bad key: $to")
         val delta = nextPos - prevPos
         // As per numpad, except the gap is on the top row...
         if (prevPos.y == 0 && nextPos.x == 0) {
@@ -92,26 +84,12 @@ object Day21: Solver<List<String>, Long> {
         return "<".repeatSafe(-delta.x) + "v".repeatSafe(delta.y) + "^".repeatSafe(-delta.y) + ">".repeatSafe(delta.x)
     }
 
-    /**
-     * Inflate numeric keypad strokes to list of directional keypad commands
-     * This "works" up to about 19 robots or so (although it gets pretty slow)
-     */
-    private fun solveInflate(line: String, robots: Int): Int {
-        var dirs = convertNumPadLineToDirInput(line)
-        for (i in 0 until robots) {
-            dirs = convertDirPadSequence(dirs, 'A')
-        }
-        val check = Day14Sim.eval(dirs, robots)
-        require(line == check) { "Check failed: wanted '$line', got '$check'" }
-        return line.dropLast(1).toInt() * dirs.length
-    }
-
     data class CacheKey(val from: Char, val dir: Char, val robots: Int)
 
     private val cache = mutableMapOf<CacheKey, Long>()
 
     private fun solveMemo(line: String, robots: Int): Long {
-        val dirs = convertNumPadLineToDirInput(line)
+        val dirs = numPadToDirs(line)
         val result = "A${dirs}"
             .zipWithNext { l, r -> solveMemoInner(l, r, robots) }
             .sum()
@@ -122,7 +100,7 @@ object Day21: Solver<List<String>, Long> {
         if (robots == 0) return 1
         val cacheKey = CacheKey(from, dir, robots)
         return cache.getOrPut(cacheKey) {
-            val dirs = convertDirPadStep(from, dir)
+            val dirs = dirPath(from, dir)
             "A${dirs}A"
                 .zipWithNext { l, r -> solveMemoInner(l, r, robots - 1) }
                 .sum()
@@ -137,58 +115,6 @@ object Day21: Solver<List<String>, Long> {
         return input.sumOf { solveMemo(it, 25) }
     }
 
-}
-
-/** Quick debug to run generated commands and make sure they're valid (guess what - they weren't) */
-object Day14Sim {
-
-    interface Pad {
-        var x: Int
-        var y: Int
-    }
-
-    data class DirPad(override var x: Int = 2, override var y: Int = 0, val index: Int, val child: Pad) : Pad
-    data class NumPad(override var x: Int = 2, override var y: Int = 3) : Pad
-
-    fun eval(dirs: String, robots: Int): String {
-        val depth = robots + 1
-        var pads = mutableListOf<Pad>().apply {
-            val numpad = NumPad()
-            this += numpad
-            var child: Pad = numpad
-            repeat(depth - 1) {
-                val kp = DirPad(index = it, child = child)
-                this.add(0, kp)
-                child = kp
-            }
-        }
-        return dirs.map { evalOne(pads.first(), it) }.joinToString("")
-    }
-
-    private fun evalOne(pad: Pad, d: Char): String {
-        if (d != 'A') {
-            val dir = Dir4.fromChar(d)
-            pad.x += dir.x
-            pad.y += dir.y
-            if (pad is DirPad && pad.x == 0 && pad.y == 0) {
-                error("DirPad ${pad.index} invalid")
-            }
-            if (pad is NumPad && pad.x == 0 && pad.y == 3) {
-                error("NumPad invalid")
-            }
-
-        } else {
-            if (pad is DirPad) {
-                val d2 = dirPadKeys.entries.first { it.value.x == pad.x && it.value.y == pad.y }.key
-                return evalOne(pad.child, d2)
-
-            } else {
-                val d2 = numPadKeys.entries.first { it.value.x == pad.x && it.value.y == pad.y }.key
-                return "$d2"
-            }
-        }
-        return ""
-    }
 }
 
 fun main() {
